@@ -22,7 +22,7 @@ use Docker\Docker;
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class DockerTest extends TestCase
+final class DockerDockerTest extends DockerTestCase
 {
     public function testCreate(): void
     {

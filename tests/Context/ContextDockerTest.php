@@ -17,7 +17,7 @@ namespace Docker\Tests\Context;
 
 use Docker\Context\Context;
 use Docker\Context\ContextBuilder;
-use Docker\Tests\TestCase;
+use Docker\Tests\DockerTestCase;
 use Symfony\Component\Process\Process;
 
 /**
@@ -25,7 +25,7 @@ use Symfony\Component\Process\Process;
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class ContextTest extends TestCase
+final class ContextDockerTest extends DockerTestCase
 {
     public function testReturnsValidTarContent(): void
     {

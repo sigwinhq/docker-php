@@ -17,14 +17,14 @@ namespace Docker\Tests\Context;
 
 use Docker\Context\Context;
 use Docker\Context\ContextBuilder;
-use Docker\Tests\TestCase;
+use Docker\Tests\DockerTestCase;
 
 /**
  * @internal
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class ContextBuilderTest extends TestCase
+final class ContextBuilderDockerTest extends DockerTestCase
 {
     public function testWritesContextToDisk(): void
     {

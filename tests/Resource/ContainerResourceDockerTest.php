@@ -18,14 +18,14 @@ namespace Docker\Tests\Resource;
 use Docker\API\Model\ContainersCreatePostBody;
 use Docker\Docker;
 use Docker\Stream\DockerRawStream;
-use Docker\Tests\TestCase;
+use Docker\Tests\DockerTestCase;
 
 /**
  * @internal
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class ContainerResourceTest extends TestCase
+final class ContainerResourceDockerTest extends DockerTestCase
 {
     /**
      * Return the container manager.

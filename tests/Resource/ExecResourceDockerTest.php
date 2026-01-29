@@ -20,14 +20,14 @@ use Docker\API\Model\ContainersIdExecPostBody;
 use Docker\API\Model\ExecIdJsonGetResponse200;
 use Docker\API\Model\ExecIdStartPostBody;
 use Docker\Stream\DockerRawStream;
-use Docker\Tests\TestCase;
+use Docker\Tests\DockerTestCase;
 
 /**
  * @internal
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class ExecResourceTest extends TestCase
+final class ExecResourceDockerTest extends DockerTestCase
 {
     /**
      * Return the container manager.

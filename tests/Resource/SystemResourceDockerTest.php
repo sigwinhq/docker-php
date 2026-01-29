@@ -16,14 +16,14 @@ declare(strict_types=1);
 namespace Docker\Tests\Resource;
 
 use Docker\API\Model\EventsGetResponse200;
-use Docker\Tests\TestCase;
+use Docker\Tests\DockerTestCase;
 
 /**
  * @internal
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class SystemResourceTest extends TestCase
+final class SystemResourceDockerTest extends DockerTestCase
 {
     /**
      * Return a container manager.

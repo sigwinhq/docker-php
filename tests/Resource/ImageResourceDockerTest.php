@@ -18,14 +18,14 @@ namespace Docker\Tests\Resource;
 use Docker\API\Client;
 use Docker\API\Model\AuthConfig;
 use Docker\Context\ContextBuilder;
-use Docker\Tests\TestCase;
+use Docker\Tests\DockerTestCase;
 
 /**
  * @internal
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class ImageResourceTest extends TestCase
+final class ImageResourceDockerTest extends DockerTestCase
 {
     /**
      * Return a container manager.

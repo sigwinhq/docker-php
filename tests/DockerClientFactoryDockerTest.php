@@ -23,7 +23,7 @@ use Http\Client\HttpClient;
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class DockerClientFactoryTest extends TestCase
+final class DockerClientFactoryDockerTest extends DockerTestCase
 {
     protected function tearDown(): void
     {

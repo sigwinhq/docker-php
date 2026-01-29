@@ -17,7 +17,7 @@ namespace Docker\Tests\Stream;
 
 use Docker\API\Model\BuildInfo;
 use Docker\Stream\MultiJsonStream;
-use Docker\Tests\TestCase;
+use Docker\Tests\DockerTestCase;
 use GuzzleHttp\Psr7\BufferStream;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class MultiJsonStreamTest extends TestCase
+final class MultiJsonStreamDockerTest extends DockerTestCase
 {
     #[\PHPUnit\Framework\Attributes\DataProvider('provideReadJsonEscapedDoubleQuoteCases')]
     public function testReadJsonEscapedDoubleQuote(string $jsonStream, array $jsonParts): void

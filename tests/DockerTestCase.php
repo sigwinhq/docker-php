@@ -22,7 +22,7 @@ use Docker\Docker;
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class TestCase extends \PHPUnit\Framework\TestCase
+abstract class DockerTestCase extends \PHPUnit\Framework\TestCase
 {
     private static $docker;
 
