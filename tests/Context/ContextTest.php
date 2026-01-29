@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Tests\Context;
 
 use Docker\Context\Context;
@@ -9,33 +20,38 @@ use Docker\Context\ContextBuilder;
 use Docker\Tests\TestCase;
 use Symfony\Component\Process\Process;
 
-class ContextTest extends TestCase
+/**
+ * @internal
+ */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Small]
+final class ContextTest extends TestCase
 {
     public function testReturnsValidTarContent(): void
     {
-        $directory = __DIR__.DIRECTORY_SEPARATOR.'context-test';
+        $directory = __DIR__.\DIRECTORY_SEPARATOR.'context-test';
 
         $context = new Context($directory);
         $process = new Process('/usr/bin/env tar c .', $directory);
         $process->run();
 
-        $this->assertSame(\strlen($process->getOutput()), \strlen($context->toTar()));
+        self::assertSame(mb_strlen($process->getOutput()), mb_strlen($context->toTar()));
     }
 
     public function testReturnsValidTarStream(): void
     {
-        $directory = __DIR__.DIRECTORY_SEPARATOR.'context-test';
+        $directory = __DIR__.\DIRECTORY_SEPARATOR.'context-test';
 
         $context = new Context($directory);
-        $this->assertInternalType('resource', $context->toStream());
+        self::assertInternalType('resource', $context->toStream());
     }
 
     public function testDirectorySetter(): void
     {
         $context = new Context('abc');
-        $this->assertSame('abc', $context->getDirectory());
+        self::assertSame('abc', $context->getDirectory());
         $context->setDirectory('def');
-        $this->assertSame('def', $context->getDirectory());
+        self::assertSame('def', $context->getDirectory());
     }
 
     /**
@@ -43,14 +59,14 @@ class ContextTest extends TestCase
      */
     public function testTarFailed(): void
     {
-        $directory = __DIR__.DIRECTORY_SEPARATOR.'context-test';
-        $path = \getenv('PATH');
-        \putenv('PATH=/');
+        $directory = __DIR__.\DIRECTORY_SEPARATOR.'context-test';
+        $path = getenv('PATH');
+        putenv('PATH=/');
         $context = new Context($directory);
         try {
             $context->toTar();
         } finally {
-            \putenv("PATH=$path");
+            putenv("PATH={$path}");
         }
     }
 
@@ -58,10 +74,10 @@ class ContextTest extends TestCase
     {
         $context = (new ContextBuilder())->getContext();
         $file = $context->getDirectory().'/Dockerfile';
-        $this->assertFileExists($file);
+        self::assertFileExists($file);
 
         unset($context);
 
-        $this->assertFileNotExists($file);
+        self::assertFileNotExists($file);
     }
 }

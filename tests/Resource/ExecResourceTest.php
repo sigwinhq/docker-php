@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Tests\Resource;
 
 use Docker\API\Model\ContainersCreatePostBody;
@@ -11,7 +22,12 @@ use Docker\API\Model\ExecIdStartPostBody;
 use Docker\Stream\DockerRawStream;
 use Docker\Tests\TestCase;
 
-class ExecResourceTest extends TestCase
+/**
+ * @internal
+ */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Small]
+final class ExecResourceTest extends TestCase
 {
     /**
      * Return the container manager.
@@ -38,15 +54,15 @@ class ExecResourceTest extends TestCase
 
         $stream = $this->getManager()->execStart($execCreateResult->getId(), $execStartConfig);
 
-        $this->assertInstanceOf(DockerRawStream::class, $stream);
+        self::assertInstanceOf(DockerRawStream::class, $stream);
 
         $stdoutFull = '';
-        $stream->onStdout(function ($stdout) use (&$stdoutFull): void {
+        $stream->onStdout(static function ($stdout) use (&$stdoutFull): void {
             $stdoutFull .= $stdout;
         });
         $stream->wait();
 
-        $this->assertSame("output\n", $stdoutFull);
+        self::assertSame("output\n", $stdoutFull);
 
         self::getDocker()->containerKill($createContainerResult->getId(), [
             'signal' => 'SIGKILL',
@@ -69,7 +85,7 @@ class ExecResourceTest extends TestCase
 
         $execFindResult = $this->getManager()->execInspect($execCreateResult->getId());
 
-        $this->assertInstanceOf(ExecIdJsonGetResponse200::class, $execFindResult);
+        self::assertInstanceOf(ExecIdJsonGetResponse200::class, $execFindResult);
 
         self::getDocker()->containerKill($createContainerResult->getId(), [
             'signal' => 'SIGKILL',

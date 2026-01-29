@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Tests\Resource;
 
 use Docker\API\Client;
@@ -9,7 +20,12 @@ use Docker\API\Model\AuthConfig;
 use Docker\Context\ContextBuilder;
 use Docker\Tests\TestCase;
 
-class ImageResourceTest extends TestCase
+/**
+ * @internal
+ */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Small]
+final class ImageResourceTest extends TestCase
 {
     /**
      * Return a container manager.
@@ -28,16 +44,16 @@ class ImageResourceTest extends TestCase
         $context = $contextBuilder->getContext();
         $buildStream = $this->getManager()->imageBuild($context->read(), ['t' => 'test-image']);
 
-        $this->assertInstanceOf('Docker\Stream\BuildStream', $buildStream);
+        self::assertInstanceOf('Docker\Stream\BuildStream', $buildStream);
 
         $lastMessage = '';
 
-        $buildStream->onFrame(function ($frame) use (&$lastMessage): void {
+        $buildStream->onFrame(static function ($frame) use (&$lastMessage): void {
             $lastMessage = $frame->getStream();
         });
         $buildStream->wait();
 
-        $this->assertContains('Successfully', $lastMessage);
+        self::assertContains('Successfully', $lastMessage);
     }
 
     public function testCreate(): void
@@ -46,18 +62,18 @@ class ImageResourceTest extends TestCase
             'fromImage' => 'registry:latest',
         ]);
 
-        $this->assertInstanceOf('Docker\Stream\CreateImageStream', $createImageStream);
+        self::assertInstanceOf('Docker\Stream\CreateImageStream', $createImageStream);
 
         $firstMessage = null;
 
-        $createImageStream->onFrame(function ($createImageInfo) use (&$firstMessage): void {
-            if (null === $firstMessage) {
+        $createImageStream->onFrame(static function ($createImageInfo) use (&$firstMessage): void {
+            if ($firstMessage === null) {
                 $firstMessage = $createImageInfo->getStatus();
             }
         });
         $createImageStream->wait();
 
-        $this->assertContains('Pulling from library/registry', $firstMessage);
+        self::assertContains('Pulling from library/registry', $firstMessage);
     }
 
     public function testPushStream(): void
@@ -75,17 +91,17 @@ class ImageResourceTest extends TestCase
             'X-Registry-Auth' => $registryConfig,
         ]);
 
-        $this->assertInstanceOf('Docker\Stream\PushStream', $pushImageStream);
+        self::assertInstanceOf('Docker\Stream\PushStream', $pushImageStream);
 
         $firstMessage = null;
 
-        $pushImageStream->onFrame(function ($pushImageInfo) use (&$firstMessage): void {
-            if (null === $firstMessage) {
+        $pushImageStream->onFrame(static function ($pushImageInfo) use (&$firstMessage): void {
+            if ($firstMessage === null) {
                 $firstMessage = $pushImageInfo->getStatus();
             }
         });
         $pushImageStream->wait();
 
-        $this->assertContains('repository [localhost:5000/test-image]', $firstMessage);
+        self::assertContains('repository [localhost:5000/test-image]', $firstMessage);
     }
 }

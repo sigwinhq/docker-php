@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Stream;
 
 use Psr\Http\Message\StreamInterface;
@@ -22,9 +33,6 @@ abstract class MultiJsonStream extends CallbackStream
         $this->serializer = $serializer;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function readFrame()
     {
         $jsonFrameEnd = false;
@@ -34,26 +42,26 @@ abstract class MultiJsonStream extends CallbackStream
         $level = 0;
 
         // This is a
-        while (!$jsonFrameEnd && !$this->stream->eof()) {
+        while (! $jsonFrameEnd && ! $this->stream->eof()) {
             $jsonChar = $this->stream->read(1);
 
-            if ('"' === $jsonChar && '\\' !== $lastJsonChar) {
-                $inquote = !$inquote;
+            if ($jsonChar === '"' && $lastJsonChar !== '\\') {
+                $inquote = ! $inquote;
             }
 
             // We ignore white space when it is not part of a quoted string.
-            if (!$inquote && \in_array($jsonChar, [' ', "\r", "\n", "\t"], true)) {
+            if (! $inquote && \in_array($jsonChar, [' ', "\r", "\n", "\t"], true)) {
                 continue;
             }
 
-            if (!$inquote && \in_array($jsonChar, ['{', '['], true)) {
+            if (! $inquote && \in_array($jsonChar, ['{', '['], true)) {
                 ++$level;
             }
 
-            if (!$inquote && \in_array($jsonChar, ['}', ']'], true)) {
+            if (! $inquote && \in_array($jsonChar, ['}', ']'], true)) {
                 --$level;
 
-                if (0 === $level) {
+                if ($level === 0) {
                     $jsonFrameEnd = true;
                     $jsonFrame .= $jsonChar;
                     $lastJsonChar = '';
@@ -66,17 +74,15 @@ abstract class MultiJsonStream extends CallbackStream
         }
 
         // Invalid last json, or timeout, or connection close before receiving
-        if (!$jsonFrameEnd) {
+        if (! $jsonFrameEnd) {
             return null;
         }
 
-        return $this->serializer->deserialize($jsonFrame, 'Docker\\API\\Model\\'.$this->getDecodeClass(), 'json');
+        return $this->serializer->deserialize($jsonFrame, 'Docker\API\Model\\'.$this->getDecodeClass(), 'json');
     }
 
     /**
      * Get the decode class to pass to serializer.
-     *
-     * @return string
      */
-    abstract protected function getDecodeClass();
+    abstract protected function getDecodeClass(): string;
 }

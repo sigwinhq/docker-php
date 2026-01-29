@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker;
 
 use Amp\Artax\Client;
@@ -16,7 +27,7 @@ use Amp\Socket\ClientTlsContext;
 use Amp\Socket\StaticSocketPool;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class DockerAsyncClient implements Client
+final class DockerAsyncClient implements Client
 {
     private $client;
 
@@ -27,7 +38,7 @@ class DockerAsyncClient implements Client
         $this->client = new DefaultClient(null, $socketPool, $options['ssl']);
     }
 
-    public function request($uriOrRequest, array $options = [], CancellationToken $cancellation = null): Promise
+    public function request($uriOrRequest, array $options = [], ?CancellationToken $cancellation = null): Promise
     {
         if ($uriOrRequest instanceof Request) {
             $uriOrRequest = $uriOrRequest->withUri('http://localhost'.$uriOrRequest->getUri());
@@ -36,7 +47,7 @@ class DockerAsyncClient implements Client
         return $this->client->request($uriOrRequest, $options, $cancellation);
     }
 
-    protected function resolveOptions(array $options = []): array
+    private function resolveOptions(array $options = []): array
     {
         $resolver = new OptionsResolver();
 
@@ -56,32 +67,32 @@ class DockerAsyncClient implements Client
     public static function createFromEnv(): self
     {
         $options = [
-            'remote_socket' => \getenv('DOCKER_HOST') ? \getenv('DOCKER_HOST') : 'unix:///var/run/docker.sock',
+            'remote_socket' => getenv('DOCKER_HOST') ? getenv('DOCKER_HOST') : 'unix:///var/run/docker.sock',
         ];
 
-        if (\getenv('DOCKER_TLS_VERIFY') && '1' === \getenv('DOCKER_TLS_VERIFY')) {
-            if (!\getenv('DOCKER_CERT_PATH')) {
+        if (getenv('DOCKER_TLS_VERIFY') && '1' === getenv('DOCKER_TLS_VERIFY')) {
+            if (! getenv('DOCKER_CERT_PATH')) {
                 throw new \RuntimeException('Connection to docker has been set to use TLS, but no PATH is defined for certificate in DOCKER_CERT_PATH docker environment variable');
             }
 
             $tlsContext = new ClientTlsContext();
 
-            $cafile = \getenv('DOCKER_CERT_PATH').DIRECTORY_SEPARATOR.'ca.pem';
-            $certfile = \getenv('DOCKER_CERT_PATH').DIRECTORY_SEPARATOR.'cert.pem';
-            $keyfile = \getenv('DOCKER_CERT_PATH').DIRECTORY_SEPARATOR.'key.pem';
+            $cafile = getenv('DOCKER_CERT_PATH').\DIRECTORY_SEPARATOR.'ca.pem';
+            $certfile = getenv('DOCKER_CERT_PATH').\DIRECTORY_SEPARATOR.'cert.pem';
+            $keyfile = getenv('DOCKER_CERT_PATH').\DIRECTORY_SEPARATOR.'key.pem';
 
             $certificate = new Certificate($certfile, $keyfile);
 
             $tlsContext = $tlsContext->withCaFile($cafile);
             $tlsContext = $tlsContext->withCertificate($certificate);
 
-            if (\getenv('DOCKER_PEER_NAME')) {
-                $tlsContext = $tlsContext->withPeerName(\getenv('DOCKER_PEER_NAME'));
+            if (getenv('DOCKER_PEER_NAME')) {
+                $tlsContext = $tlsContext->withPeerName(getenv('DOCKER_PEER_NAME'));
             }
 
             $options['ssl'] = $tlsContext;
         }
 
-        return new static($options);
+        return new self($options);
     }
 }

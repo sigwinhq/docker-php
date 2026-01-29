@@ -22,12 +22,9 @@
         "symfony/filesystem": "^7.4 || ^8.0",
         "symfony/process": "^7.4 || ^8.0"
     },
-    "suggest": {
-        "php-http/httplug-bundle": "For integration with Symfony",
-        "amphp/artax": "To use the async api"
-    },
     "require-dev": {
-        "phpunit/phpunit": "^9.0"
+        "phpunit/phpunit": "^12.0",
+        "sigwin/infra": "~1.24.0"
     },
     "extra": {
         "branch-alias": {

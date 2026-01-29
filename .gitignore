@@ -1,5 +1,3 @@
-vendor/
-bin/
-composer.lock
-.vagrant
-/.php_cs.cache
+/var/
+/vendor/
+/composer.lock

@@ -2,11 +2,22 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Context;
 
 use Symfony\Component\Filesystem\Filesystem;
 
-class ContextBuilder
+final class ContextBuilder
 {
     /**
      * @var array
@@ -39,9 +50,9 @@ class ContextBuilder
     private $entrypoint;
 
     /**
-     * @param \Symfony\Component\Filesystem\Filesystem
+     * @param Filesystem
      */
-    public function __construct(Filesystem $fs = null)
+    public function __construct(?Filesystem $fs = null)
     {
         $this->fs = $fs ?: new Filesystem();
         $this->format = Context::FORMAT_STREAM;
@@ -51,10 +62,8 @@ class ContextBuilder
      * Sets the format of the Context output.
      *
      * @param string $format
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function setFormat($format)
+    public function setFormat($format): self
     {
         $this->format = $format;
 
@@ -65,10 +74,8 @@ class ContextBuilder
      * Add a FROM instruction of Dockerfile.
      *
      * @param string $from From which image we start
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function from($from)
+    public function from($from): self
     {
         $this->commands[] = ['type' => 'FROM', 'image' => $from];
 
@@ -79,10 +86,8 @@ class ContextBuilder
      * Set the CMD instruction in the Dockerfile.
      *
      * @param string $command Command to execute
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function command($command)
+    public function command($command): self
     {
         $this->command = $command;
 
@@ -93,10 +98,8 @@ class ContextBuilder
      * Set the ENTRYPOINT instruction in the Dockerfile.
      *
      * @param string $entrypoint The entrypoint
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function entrypoint($entrypoint)
+    public function entrypoint($entrypoint): self
     {
         $this->entrypoint = $entrypoint;
 
@@ -108,10 +111,8 @@ class ContextBuilder
      *
      * @param string $path    Path wanted on the image
      * @param string $content Content of file
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function add($path, $content)
+    public function add($path, $content): self
     {
         $this->commands[] = ['type' => 'ADD', 'path' => $path, 'content' => $content];
 
@@ -123,10 +124,8 @@ class ContextBuilder
      *
      * @param string   $path   Path wanted on the image
      * @param resource $stream stream that contains file content
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function addStream($path, $stream)
+    public function addStream($path, $stream): self
     {
         $this->commands[] = ['type' => 'ADDSTREAM', 'path' => $path, 'stream' => $stream];
 
@@ -138,10 +137,8 @@ class ContextBuilder
      *
      * @param string $path Path wanted on the image
      * @param string $file Source file (or directory) name
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function addFile($path, $file)
+    public function addFile($path, $file): self
     {
         $this->commands[] = ['type' => 'ADDFILE', 'path' => $path, 'file' => $file];
 
@@ -152,10 +149,8 @@ class ContextBuilder
      * Add a RUN instruction to Dockerfile.
      *
      * @param string $command Command to run
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function run($command)
+    public function run($command): self
     {
         $this->commands[] = ['type' => 'RUN', 'command' => $command];
 
@@ -167,10 +162,8 @@ class ContextBuilder
      *
      * @param string $name  Name of the environment variable
      * @param string $value Value of the environment variable
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function env($name, $value)
+    public function env($name, $value): self
     {
         $this->commands[] = ['type' => 'ENV', 'name' => $name, 'value' => $value];
 
@@ -182,10 +175,8 @@ class ContextBuilder
      *
      * @param string $from Path of folder or file to copy
      * @param string $to   Path of destination
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function copy($from, $to)
+    public function copy($from, $to): self
     {
         $this->commands[] = ['type' => 'COPY', 'from' => $from, 'to' => $to];
 
@@ -196,10 +187,8 @@ class ContextBuilder
      * Add a WORKDIR instruction to Dockerfile.
      *
      * @param string $workdir Working directory
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function workdir($workdir)
+    public function workdir($workdir): self
     {
         $this->commands[] = ['type' => 'WORKDIR', 'workdir' => $workdir];
 
@@ -210,10 +199,8 @@ class ContextBuilder
      * Add a EXPOSE instruction to Dockerfile.
      *
      * @param int $port Port to expose
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function expose($port)
+    public function expose($port): self
     {
         $this->commands[] = ['type' => 'EXPOSE', 'port' => $port];
 
@@ -224,10 +211,8 @@ class ContextBuilder
      * Adds an USER instruction to the Dockerfile.
      *
      * @param string $user User to switch to
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function user($user)
+    public function user($user): self
     {
         $this->commands[] = ['type' => 'USER', 'user' => $user];
 
@@ -238,10 +223,8 @@ class ContextBuilder
      * Adds a VOLUME instruction to the Dockerfile.
      *
      * @param string $volume Volume path to add
-     *
-     * @return \Docker\Context\ContextBuilder
      */
-    public function volume($volume)
+    public function volume($volume): self
     {
         $this->commands[] = ['type' => 'VOLUME', 'volume' => $volume];
 
@@ -250,12 +233,10 @@ class ContextBuilder
 
     /**
      * Create context given the state of builder.
-     *
-     * @return \Docker\Context\Context
      */
-    public function getContext()
+    public function getContext(): Context
     {
-        $directory = \sys_get_temp_dir().'/ctb-'.\microtime();
+        $directory = sys_get_temp_dir().'/ctb-'.microtime();
         $this->fs->mkdir($directory);
         $this->write($directory);
 
@@ -317,15 +298,15 @@ class ContextBuilder
             }
         }
 
-        if (!empty($this->entrypoint)) {
+        if (! empty($this->entrypoint)) {
             $dockerfile[] = 'ENTRYPOINT '.$this->entrypoint;
         }
 
-        if (!empty($this->command)) {
+        if (! empty($this->command)) {
             $dockerfile[] = 'CMD '.$this->command;
         }
 
-        $this->fs->dumpFile($directory.DIRECTORY_SEPARATOR.'Dockerfile', \implode(PHP_EOL, $dockerfile));
+        $this->fs->dumpFile($directory.\DIRECTORY_SEPARATOR.'Dockerfile', implode(\PHP_EOL, $dockerfile));
     }
 
     /**
@@ -336,14 +317,14 @@ class ContextBuilder
      *
      * @return string Name of file generated
      */
-    private function getFile($directory, $content)
+    private function getFile($directory, $content): string
     {
-        $hash = \md5($content);
+        $hash = md5($content);
 
-        if (!\array_key_exists($hash, $this->files)) {
-            $file = \tempnam($directory, '');
+        if (! \array_key_exists($hash, $this->files)) {
+            $file = tempnam($directory, '');
             $this->fs->dumpFile($file, $content);
-            $this->files[$hash] = \basename($file);
+            $this->files[$hash] = basename($file);
         }
 
         return $this->files[$hash];
@@ -357,16 +338,16 @@ class ContextBuilder
      *
      * @return string Name of file generated
      */
-    private function getFileFromStream($directory, $stream)
+    private function getFileFromStream($directory, $stream): string
     {
-        $file = \tempnam($directory, '');
-        $target = \fopen($file, 'w');
-        if (0 === \stream_copy_to_stream($stream, $target)) {
+        $file = tempnam($directory, '');
+        $target = fopen($file, 'w');
+        if (0 === stream_copy_to_stream($stream, $target)) {
             throw new \RuntimeException('Failed to write stream to file');
         }
-        \fclose($target);
+        fclose($target);
 
-        return \basename($file);
+        return basename($file);
     }
 
     /**
@@ -377,12 +358,12 @@ class ContextBuilder
      *
      * @return string Name of file generated
      */
-    private function getFileFromDisk($directory, $source)
+    private function getFileFromDisk($directory, $source): string
     {
-        $hash = 'DISK-'.\md5(\realpath($source));
-        if (!\array_key_exists($hash, $this->files)) {
+        $hash = 'DISK-'.md5(realpath($source));
+        if (! \array_key_exists($hash, $this->files)) {
             // Check if source is a directory or a file.
-            if (\is_dir($source)) {
+            if (is_dir($source)) {
                 $this->fs->mirror($source, $directory.'/'.$hash, null, ['copy_on_windows' => true]);
             } else {
                 $this->fs->copy($source, $directory.'/'.$hash);

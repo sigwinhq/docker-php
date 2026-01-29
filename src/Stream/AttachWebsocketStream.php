@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Stream;
 
 use Psr\Http\Message\StreamInterface;
@@ -13,7 +24,7 @@ use Psr\Http\Message\StreamInterface;
  *
  * @see https://tools.ietf.org/html/rfc6455#section-5.2
  */
-class AttachWebsocketStream
+final class AttachWebsocketStream
 {
     /** @var resource The underlying socket */
     private $socket;
@@ -30,7 +41,7 @@ class AttachWebsocketStream
      */
     public function write($data): void
     {
-        $rand = \random_int(0, 28);
+        $rand = random_int(0, 28);
         $frame = [
             'fin' => 1,
             'rsv1' => 0,
@@ -38,12 +49,12 @@ class AttachWebsocketStream
             'rsv3' => 0,
             'opcode' => 1, // We always send text
             'mask' => 1,
-            'len' => \strlen($data),
-            'mask_key' => \substr(\md5(\uniqid()), $rand, 4),
+            'len' => mb_strlen($data),
+            'mask_key' => mb_substr(md5(uniqid()), $rand, 4),
             'data' => $data,
         ];
 
-        if (1 === $frame['mask']) {
+        if ($frame['mask'] === 1) {
             for ($i = 0; $i < $frame['len']; ++$i) {
                 $frame['data'][$i]
                     = \chr(\ord($frame['data'][$i]) ^ \ord($frame['mask_key'][$i % 4]));
@@ -64,16 +75,16 @@ class AttachWebsocketStream
         $this->socketWrite(\chr($firstByte));
         $this->socketWrite(\chr($secondByte));
 
-        if (126 === $len) {
-            $this->socketWrite(\pack('n', $frame['len']));
-        } elseif (127 === $len) {
+        if ($len === 126) {
+            $this->socketWrite(pack('n', $frame['len']));
+        } elseif ($len === 127) {
             $higher = $frame['len'] >> 32;
             $lower = ($frame['len'] << 32) >> 32;
-            $this->socketWrite(\pack('N', $higher));
-            $this->socketWrite(\pack('N', $lower));
+            $this->socketWrite(pack('N', $higher));
+            $this->socketWrite(pack('N', $lower));
         }
 
-        if (1 === $frame['mask']) {
+        if ($frame['mask'] === 1) {
             $this->socketWrite($frame['mask_key']);
         }
 
@@ -87,11 +98,11 @@ class AttachWebsocketStream
      * @param int  $waitMicroTime Time to wait in microseconds before return false
      * @param bool $getFrame      Whether to return the frame of websocket or only the data
      *
-     * @return null|false|string|array Null for socket not available, false for no message, string for the last message and the frame array if $getFrame is set to true
+     * @return null|array|false|string Null for socket not available, false for no message, string for the last message and the frame array if $getFrame is set to true
      */
-    public function read($waitTime = 0, $waitMicroTime = 200000, $getFrame = false)
+    public function read($waitTime = 0, $waitMicroTime = 200000, $getFrame = false): bool|string|array|null
     {
-        if (!\is_resource($this->socket) || \feof($this->socket)) {
+        if (! \is_resource($this->socket) || feof($this->socket)) {
             return null;
         }
 
@@ -99,7 +110,7 @@ class AttachWebsocketStream
         $write = null;
         $expect = null;
 
-        if (0 === \stream_select($read, $write, $expect, $waitTime, $waitMicroTime)) {
+        if (0 === stream_select($read, $write, $expect, $waitTime, $waitMicroTime)) {
             return false;
         }
 
@@ -120,22 +131,22 @@ class AttachWebsocketStream
         $frame['len'] = ($secondByte & 127);
 
         // Get length of the frame
-        if (126 === $frame['len']) {
-            $frame['len'] = \unpack('n', $this->socketRead(2))[1];
-        } elseif (127 === $frame['len']) {
-            list($higher, $lower) = \array_values(\unpack('N2', $this->socketRead(8)));
+        if ($frame['len'] === 126) {
+            $frame['len'] = unpack('n', $this->socketRead(2))[1];
+        } elseif ($frame['len'] === 127) {
+            [$higher, $lower] = array_values(unpack('N2', $this->socketRead(8)));
             $frame['len'] = ($higher << 32) | $lower;
         }
 
         // Get the mask key if needed
-        if (1 === $frame['mask']) {
+        if ($frame['mask'] === 1) {
             $frame['mask_key'] = $this->socketRead(4);
         }
 
         $frame['data'] = $this->socketRead($frame['len']);
 
         // Decode data if needed
-        if (1 === $frame['mask']) {
+        if ($frame['mask'] === 1) {
             for ($i = 0; $i < $frame['len']; ++$i) {
                 $frame['data'][$i] = \chr(\ord($frame['data'][$i]) ^ \ord($frame['mask_key'][$i % 4]));
             }
@@ -150,31 +161,23 @@ class AttachWebsocketStream
 
     /**
      * Force to have something of the expected size (block).
-     *
-     * @param $length
-     *
-     * @return string
      */
-    private function socketRead($length)
+    private function socketRead($length): string
     {
         $read = '';
 
         do {
-            $read .= \fread($this->socket, $length - \strlen($read));
-        } while (\strlen($read) < $length && !\feof($this->socket));
+            $read .= fread($this->socket, $length - mb_strlen($read));
+        } while ($length > mb_strlen($read) && ! feof($this->socket));
 
         return $read;
     }
 
     /**
      * Write to the socket.
-     *
-     * @param $data
-     *
-     * @return int
      */
-    private function socketWrite($data)
+    private function socketWrite($data): int
     {
-        return \fwrite($this->socket, $data);
+        return fwrite($this->socket, $data);
     }
 }

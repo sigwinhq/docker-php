@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Tests\Resource;
 
 use Docker\API\Model\ContainersCreatePostBody;
@@ -9,7 +20,12 @@ use Docker\Docker;
 use Docker\Stream\DockerRawStream;
 use Docker\Tests\TestCase;
 
-class ContainerResourceTest extends TestCase
+/**
+ * @internal
+ */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Small]
+final class ContainerResourceTest extends TestCase
 {
     /**
      * Return the container manager.
@@ -44,7 +60,7 @@ class ContainerResourceTest extends TestCase
         ]);
 
         $stdoutFull = '';
-        $dockerRawStream->onStdout(function ($stdout) use (&$stdoutFull): void {
+        $dockerRawStream->onStdout(static function ($stdout) use (&$stdoutFull): void {
             $stdoutFull .= $stdout;
         });
 
@@ -53,7 +69,7 @@ class ContainerResourceTest extends TestCase
 
         $dockerRawStream->wait();
 
-        $this->assertSame('output', $stdoutFull);
+        self::assertSame('output', $stdoutFull);
     }
 
     public function testAttachWebsocket(): void
@@ -82,7 +98,7 @@ class ContainerResourceTest extends TestCase
         $webSocketStream->read();
 
         // No output after that so it should be false
-        $this->assertFalse($webSocketStream->read());
+        self::assertFalse($webSocketStream->read());
 
         // Write something to the container
         $webSocketStream->write("echo test\n");
@@ -90,11 +106,11 @@ class ContainerResourceTest extends TestCase
         // Test for echo present (stdin)
         $output = '';
 
-        while (false !== ($data = $webSocketStream->read())) {
+        while (($data = $webSocketStream->read()) !== false) {
             $output .= $data;
         }
 
-        $this->assertContains('echo', $output);
+        self::assertContains('echo', $output);
 
         // Exit the container
         $webSocketStream->write("exit\n");

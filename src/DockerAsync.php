@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker;
 
 use Amp\Artax\Request;
@@ -12,39 +23,34 @@ use Docker\Client\AmpArtaxStreamEndpoint;
 use Docker\Client\ProvideAmpArtaxClientOptions;
 use Docker\Endpoint\SystemEvents;
 use Jane\OpenApiRuntime\Client\AmpArtaxEndpoint;
+
 use function Amp\call;
 
 /**
  * Docker\Docker.
  */
-class DockerAsync extends ClientAsync
+final class DockerAsync extends ClientAsync
 {
     public static function create($httpClient = null)
     {
-        if (null === $httpClient) {
+        if ($httpClient === null) {
             $httpClient = DockerAsyncClient::createFromEnv();
         }
 
         return parent::create($httpClient);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function systemEvents(array $queryParameters = [], string $fetch = self::FETCH_OBJECT): Promise
     {
         return $this->executeArtaxEndpoint(new SystemEvents($queryParameters), $fetch);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function executeArtaxEndpoint(AmpArtaxEndpoint $endpoint, string $fetch = self::FETCH_OBJECT): Promise
     {
         return call(function () use ($endpoint, $fetch) {
             [$bodyHeaders, $body] = $endpoint->getBody($this->serializer);
             $queryString = $endpoint->getQueryString();
-            $uri = '' !== $queryString ? $endpoint->getUri().'?'.$queryString : $endpoint->getUri();
+            $uri = $queryString !== '' ? $endpoint->getUri().'?'.$queryString : $endpoint->getUri();
             $request = new Request($uri, $endpoint->getMethod());
             $request = $request->withBody($body);
             $request = $request->withHeaders($endpoint->getHeaders($bodyHeaders));

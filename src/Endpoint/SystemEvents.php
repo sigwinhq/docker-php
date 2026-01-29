@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Endpoint;
 
 use Amp\Artax\Client as ArtaxClient;
@@ -15,7 +26,7 @@ use Jane\OpenApiRuntime\Client\Exception\InvalidFetchModeException;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class SystemEvents extends BaseEndpoint implements ProvideAmpArtaxClientOptions, AmpArtaxStreamEndpoint
+final class SystemEvents extends BaseEndpoint implements AmpArtaxStreamEndpoint, ProvideAmpArtaxClientOptions
 {
     use AmpArtaxStreamEndpointTrait;
 
@@ -26,7 +37,7 @@ class SystemEvents extends BaseEndpoint implements ProvideAmpArtaxClientOptions,
 
     public function parsePSR7Response(ResponseInterface $response, SerializerInterface $serializer, string $fetchMode = Client::FETCH_OBJECT)
     {
-        if (Client::FETCH_OBJECT === $fetchMode) {
+        if ($fetchMode === Client::FETCH_OBJECT) {
             if (200 === $response->getStatusCode()) {
                 return new EventStream($response->getBody(), $serializer);
             }
@@ -34,7 +45,7 @@ class SystemEvents extends BaseEndpoint implements ProvideAmpArtaxClientOptions,
             return $this->transformResponseBody((string) $response->getBody(), $response->getStatusCode(), $serializer);
         }
 
-        if (Client::FETCH_RESPONSE === $fetchMode) {
+        if ($fetchMode === Client::FETCH_RESPONSE) {
             return $response;
         }
 

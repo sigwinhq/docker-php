@@ -2,20 +2,36 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Tests\Context;
 
 use Docker\Context\Context;
 use Docker\Context\ContextBuilder;
 use Docker\Tests\TestCase;
 
-class ContextBuilderTest extends TestCase
+/**
+ * @internal
+ */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Small]
+final class ContextBuilderTest extends TestCase
 {
     public function testWritesContextToDisk(): void
     {
         $contextBuilder = new ContextBuilder();
         $context = $contextBuilder->getContext();
 
-        $this->assertFileExists($context->getDirectory().'/Dockerfile');
+        self::assertFileExists($context->getDirectory().'/Dockerfile');
     }
 
     public function testHasDefaultFrom(): void
@@ -23,7 +39,7 @@ class ContextBuilderTest extends TestCase
         $contextBuilder = new ContextBuilder();
         $context = $contextBuilder->getContext();
 
-        $this->assertStringEqualsFile($context->getDirectory().'/Dockerfile', 'FROM base');
+        self::assertStringEqualsFile($context->getDirectory().'/Dockerfile', 'FROM base');
     }
 
     public function testUsesCustomFrom(): void
@@ -33,7 +49,7 @@ class ContextBuilderTest extends TestCase
 
         $context = $contextBuilder->getContext();
 
-        $this->assertStringEqualsFile($context->getDirectory().'/Dockerfile', 'FROM ubuntu:precise');
+        self::assertStringEqualsFile($context->getDirectory().'/Dockerfile', 'FROM ubuntu:precise');
     }
 
     public function testMultipleFrom(): void
@@ -44,7 +60,7 @@ class ContextBuilderTest extends TestCase
         $contextBuilder->from('test');
 
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertSame("FROM ubuntu:precise\nFROM test", $content);
+        self::assertSame("FROM ubuntu:precise\nFROM test", $content);
     }
 
     public function testCreatesTmpDirectory(): void
@@ -52,7 +68,7 @@ class ContextBuilderTest extends TestCase
         $contextBuilder = new ContextBuilder();
         $context = $contextBuilder->getContext();
 
-        $this->assertFileExists($context->getDirectory());
+        self::assertFileExists($context->getDirectory());
     }
 
     public function testWriteTmpFiles(): void
@@ -61,66 +77,62 @@ class ContextBuilderTest extends TestCase
         $contextBuilder->add('/foo', 'random content');
 
         $context = $contextBuilder->getContext();
-        $filename = \preg_replace(<<<DOCKERFILE
-#FROM base
-ADD (.+?) /foo#
-DOCKERFILE
-            , '$1', $context->getDockerfileContent());
+        $filename = preg_replace(<<<'DOCKERFILE'
+            #FROM base
+            ADD (.+?) /foo#
+            DOCKERFILE, '$1', $context->getDockerfileContent());
 
-        $this->assertStringEqualsFile($context->getDirectory().'/'.$filename, 'random content');
+        self::assertStringEqualsFile($context->getDirectory().'/'.$filename, 'random content');
     }
 
     public function testWriteTmpFileFromStream(): void
     {
         $contextBuilder = new ContextBuilder();
-        $stream = \fopen('php://temp', 'r+');
-        $this->assertSame(7, \fwrite($stream, 'test123'));
-        \rewind($stream);
+        $stream = fopen('php://temp', 'r+');
+        self::assertSame(7, fwrite($stream, 'test123'));
+        rewind($stream);
         $contextBuilder->addStream('/foo', $stream);
 
         $context = $contextBuilder->getContext();
-        $filename = \preg_replace(<<<DOCKERFILE
-#FROM base
-ADD (.+?) /foo#
-DOCKERFILE
-            , '$1', $context->getDockerfileContent());
-        $this->assertStringEqualsFile($context->getDirectory().'/'.$filename, 'test123');
+        $filename = preg_replace(<<<'DOCKERFILE'
+            #FROM base
+            ADD (.+?) /foo#
+            DOCKERFILE, '$1', $context->getDockerfileContent());
+        self::assertStringEqualsFile($context->getDirectory().'/'.$filename, 'test123');
     }
 
     public function testWriteTmpFileFromDisk(): void
     {
         $contextBuilder = new ContextBuilder();
-        $file = \tempnam('', '');
-        \file_put_contents($file, 'abc');
-        $this->assertStringEqualsFile($file, 'abc');
+        $file = tempnam('', '');
+        file_put_contents($file, 'abc');
+        self::assertStringEqualsFile($file, 'abc');
         $contextBuilder->addFile('/foo', $file);
 
         $context = $contextBuilder->getContext();
-        $filename = \preg_replace(<<<DOCKERFILE
-#FROM base
-ADD (.+?) /foo#
-DOCKERFILE
-            , '$1', $context->getDockerfileContent());
-        $this->assertStringEqualsFile($context->getDirectory().'/'.$filename, 'abc');
+        $filename = preg_replace(<<<'DOCKERFILE'
+            #FROM base
+            ADD (.+?) /foo#
+            DOCKERFILE, '$1', $context->getDockerfileContent());
+        self::assertStringEqualsFile($context->getDirectory().'/'.$filename, 'abc');
     }
 
     public function testWriteTmpDirFromDisk(): void
     {
         $contextBuilder = new ContextBuilder();
-        $dir = \tempnam(\sys_get_temp_dir(), '');
-        \unlink($dir);
-        \mkdir($dir);
-        \file_put_contents($dir.'/test', 'abc');
-        $this->assertStringEqualsFile($dir.'/test', 'abc');
+        $dir = tempnam(sys_get_temp_dir(), '');
+        unlink($dir);
+        mkdir($dir);
+        file_put_contents($dir.'/test', 'abc');
+        self::assertStringEqualsFile($dir.'/test', 'abc');
         $contextBuilder->addFile('/foo', $dir);
 
         $context = $contextBuilder->getContext();
-        $filename = \preg_replace(<<<DOCKERFILE
-#FROM base
-ADD (.+?) /foo#
-DOCKERFILE
-            , '$1', $context->getDockerfileContent());
-        $this->assertStringEqualsFile($context->getDirectory().'/'.$filename.'/test', 'abc');
+        $filename = preg_replace(<<<'DOCKERFILE'
+            #FROM base
+            ADD (.+?) /foo#
+            DOCKERFILE, '$1', $context->getDockerfileContent());
+        self::assertStringEqualsFile($context->getDirectory().'/'.$filename.'/test', 'abc');
     }
 
     public function testWritesAddCommands(): void
@@ -130,11 +142,10 @@ DOCKERFILE
 
         $context = $contextBuilder->getContext();
 
-        $this->assertRegExp(<<<DOCKERFILE
-#FROM base
-ADD .+? /foo#
-DOCKERFILE
-            , $context->getDockerfileContent()
+        self::assertRegExp(<<<'DOCKERFILE'
+            #FROM base
+            ADD .+? /foo#
+            DOCKERFILE, $context->getDockerfileContent()
         );
     }
 
@@ -145,10 +156,10 @@ DOCKERFILE
 
         $context = $contextBuilder->getContext();
 
-        $this->assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<DOCKERFILE
-FROM base
-RUN foo command
-DOCKERFILE
+        self::assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<'DOCKERFILE'
+            FROM base
+            RUN foo command
+            DOCKERFILE
         );
     }
 
@@ -159,10 +170,10 @@ DOCKERFILE
 
         $context = $contextBuilder->getContext();
 
-        $this->assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<DOCKERFILE
-FROM base
-ENV foo bar
-DOCKERFILE
+        self::assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<'DOCKERFILE'
+            FROM base
+            ENV foo bar
+            DOCKERFILE
         );
     }
 
@@ -173,10 +184,10 @@ DOCKERFILE
 
         $context = $contextBuilder->getContext();
 
-        $this->assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<DOCKERFILE
-FROM base
-COPY /foo /bar
-DOCKERFILE
+        self::assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<'DOCKERFILE'
+            FROM base
+            COPY /foo /bar
+            DOCKERFILE
         );
     }
 
@@ -187,10 +198,10 @@ DOCKERFILE
 
         $context = $contextBuilder->getContext();
 
-        $this->assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<DOCKERFILE
-FROM base
-WORKDIR /foo
-DOCKERFILE
+        self::assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<'DOCKERFILE'
+            FROM base
+            WORKDIR /foo
+            DOCKERFILE
         );
     }
 
@@ -201,10 +212,10 @@ DOCKERFILE
 
         $context = $contextBuilder->getContext();
 
-        $this->assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<DOCKERFILE
-FROM base
-EXPOSE 80
-DOCKERFILE
+        self::assertStringEqualsFile($context->getDirectory().'/Dockerfile', <<<'DOCKERFILE'
+            FROM base
+            EXPOSE 80
+            DOCKERFILE
         );
     }
 
@@ -213,11 +224,11 @@ DOCKERFILE
         $contextBuilder = new ContextBuilder();
         $contextBuilder->user('user1');
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertStringEndsWith("\nUSER user1", $content);
+        self::assertStringEndsWith("\nUSER user1", $content);
 
         $contextBuilder->user('user2');
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertStringEndsWith("\nUSER user1\nUSER user2", $content);
+        self::assertStringEndsWith("\nUSER user1\nUSER user2", $content);
     }
 
     public function testWritesVolumeCommands(): void
@@ -225,11 +236,11 @@ DOCKERFILE
         $contextBuilder = new ContextBuilder();
         $contextBuilder->volume('volume1');
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertStringEndsWith("\nVOLUME volume1", $content);
+        self::assertStringEndsWith("\nVOLUME volume1", $content);
 
         $contextBuilder->volume('volume2');
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertStringEndsWith("\nVOLUME volume1\nVOLUME volume2", $content);
+        self::assertStringEndsWith("\nVOLUME volume1\nVOLUME volume2", $content);
     }
 
     public function testWritesCommandCommand(): void
@@ -238,12 +249,12 @@ DOCKERFILE
         $contextBuilder->command('test123');
 
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertStringEndsWith("\nCMD test123", $content);
+        self::assertStringEndsWith("\nCMD test123", $content);
 
         $contextBuilder->command('changed');
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertNotContains('CMD test123', $content);
-        $this->assertStringEndsWith("\nCMD changed", $content);
+        self::assertNotContains('CMD test123', $content);
+        self::assertStringEndsWith("\nCMD changed", $content);
     }
 
     public function testWritesEntrypointCommand(): void
@@ -252,12 +263,12 @@ DOCKERFILE
         $contextBuilder->entrypoint('test123');
 
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertStringEndsWith("\nENTRYPOINT test123", $content);
+        self::assertStringEndsWith("\nENTRYPOINT test123", $content);
 
         $contextBuilder->entrypoint('changed');
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        $this->assertNotContains('ENTRYPOINT test123', $content);
-        $this->assertStringEndsWith("\nENTRYPOINT changed", $content);
+        self::assertNotContains('ENTRYPOINT test123', $content);
+        self::assertStringEndsWith("\nENTRYPOINT changed", $content);
     }
 
     public function testTar(): void
@@ -266,34 +277,33 @@ DOCKERFILE
         $contextBuilder->setFormat(Context::FORMAT_TAR);
         $context = $contextBuilder->getContext();
         $content = $context->read();
-        $this->assertInternalType('string', $content);
-        $this->assertSame($context->toTar(), $content);
+        self::assertInternalType('string', $content);
+        self::assertSame($context->toTar(), $content);
     }
 
     public function testTraverseSymlinks(): void
     {
         $contextBuilder = new ContextBuilder();
-        $dir = \tempnam('', '');
-        \unlink($dir);
-        \mkdir($dir);
+        $dir = tempnam('', '');
+        unlink($dir);
+        mkdir($dir);
         $file = $dir.'/test';
 
-        \file_put_contents($file, 'abc');
+        file_put_contents($file, 'abc');
 
         $linkFile = $file.'-symlink';
-        \symlink($file, $linkFile);
+        symlink($file, $linkFile);
 
         $contextBuilder->addFile('/foo', $dir);
 
         $context = $contextBuilder->getContext();
 
-        $filename = \preg_replace(<<<DOCKERFILE
-#FROM base
-ADD (.+?) /foo#
-DOCKERFILE
-            , '$1', $context->getDockerfileContent());
-        \unlink($file);
+        $filename = preg_replace(<<<'DOCKERFILE'
+            #FROM base
+            ADD (.+?) /foo#
+            DOCKERFILE, '$1', $context->getDockerfileContent());
+        unlink($file);
         $context->setCleanup(false);
-        $this->assertStringEqualsFile($context->getDirectory().'/'.$filename.'/test-symlink', 'abc');
+        self::assertStringEqualsFile($context->getDirectory().'/'.$filename.'/test-symlink', 'abc');
     }
 }

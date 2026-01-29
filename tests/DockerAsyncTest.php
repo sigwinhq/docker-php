@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Tests;
 
 use Amp\Loop;
@@ -10,11 +21,16 @@ use Docker\API\Model\EventsGetResponse200;
 use Docker\DockerAsync;
 use Docker\Stream\ArtaxCallbackStream;
 
-class DockerAsyncTest extends \PHPUnit\Framework\TestCase
+/**
+ * @internal
+ */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Small]
+final class DockerAsyncTest extends \PHPUnit\Framework\TestCase
 {
     public function testStaticConstructor(): void
     {
-        $this->assertInstanceOf(DockerAsync::class, DockerAsync::create());
+        self::assertInstanceOf(DockerAsync::class, DockerAsync::create());
     }
 
     public function testAsync(): void
@@ -46,19 +62,19 @@ class DockerAsyncTest extends \PHPUnit\Framework\TestCase
     {
         $matchedEvents = [];
 
-        Loop::run(function () use (&$matchedEvents) {
+        Loop::run(static function () use (&$matchedEvents) {
             $docker = DockerAsync::create();
 
             /** @var ArtaxCallbackStream $events */
             $events = yield $docker->systemEvents([
-                'filters' => \json_encode(
+                'filters' => json_encode(
                     [
                         'type' => ['container'],
                         'action' => ['create'],
                     ]
                 ),
             ]);
-            $events->onFrame(function ($event) use (&$matchedEvents): void {
+            $events->onFrame(static function ($event) use (&$matchedEvents): void {
                 if (\is_object($event)
                     && $event instanceof EventsGetResponse200
                     && 'create' === $event->getAction()
@@ -76,11 +92,11 @@ class DockerAsyncTest extends \PHPUnit\Framework\TestCase
 
             yield $docker->containerCreate($containerConfig);
 
-            Loop::delay(1000, function (): void {
+            Loop::delay(1000, static function (): void {
                 Loop::stop();
             });
         });
 
-        $this->assertCount(1, $matchedEvents);
+        self::assertCount(1, $matchedEvents);
     }
 }
