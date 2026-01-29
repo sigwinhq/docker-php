@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Docker\API;
 
-final class Client extends Runtime\Client\Client
+abstract class Client extends Runtime\Client\Client
 {
     /**
      * Returns a list of containers. For details on the format, see the

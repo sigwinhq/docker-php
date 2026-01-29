@@ -33,32 +33,32 @@ final class Docker extends Client
 {
     public function containerAttach(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
     {
-        return $this->executePsr7Endpoint(new ContainerAttach($id, $queryParameters), $fetch);
+        return $this->executeEndpoint(new ContainerAttach($id, $queryParameters), $fetch);
     }
 
     public function containerAttachWebsocket(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
     {
-        return $this->executePsr7Endpoint(new ContainerAttachWebsocket($id, $queryParameters), $fetch);
+        return $this->executeEndpoint(new ContainerAttachWebsocket($id, $queryParameters), $fetch);
     }
 
     public function containerLogs(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
     {
-        return $this->executePsr7Endpoint(new ContainerLogs($id, $queryParameters), $fetch);
+        return $this->executeEndpoint(new ContainerLogs($id, $queryParameters), $fetch);
     }
 
     public function execStart(string $id, API\Model\ExecIdStartPostBody $execStartConfig, string $fetch = self::FETCH_OBJECT)
     {
-        return $this->executePsr7Endpoint(new ExecStart($id, $execStartConfig), $fetch);
+        return $this->executeEndpoint(new ExecStart($id, $execStartConfig), $fetch);
     }
 
     public function imageBuild($inputStream, array $queryParameters = [], array $headerParameters = [], string $fetch = self::FETCH_OBJECT)
     {
-        return $this->executePsr7Endpoint(new ImageBuild($inputStream, $queryParameters, $headerParameters), $fetch);
+        return $this->executeEndpoint(new ImageBuild($inputStream, $queryParameters, $headerParameters), $fetch);
     }
 
     public function imageCreate(string $inputImage, array $queryParameters = [], array $headerParameters = [], string $fetch = self::FETCH_OBJECT)
     {
-        return $this->executePsr7Endpoint(new ImageCreate($inputImage, $queryParameters, $headerParameters), $fetch);
+        return $this->executeEndpoint(new ImageCreate($inputImage, $queryParameters, $headerParameters), $fetch);
     }
 
     public function imagePush(string $name, array $queryParameters = [], array $headerParameters = [], string $fetch = self::FETCH_OBJECT)
@@ -67,20 +67,20 @@ final class Docker extends Client
             $headerParameters['X-Registry-Auth'] = base64_encode($this->serializer->serialize($headerParameters['X-Registry-Auth'], 'json'));
         }
 
-        return $this->executePsr7Endpoint(new ImagePush($name, $queryParameters, $headerParameters), $fetch);
+        return $this->executeEndpoint(new ImagePush($name, $queryParameters, $headerParameters), $fetch);
     }
 
     public function systemEvents(array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
     {
-        return $this->executePsr7Endpoint(new SystemEvents($queryParameters), $fetch);
+        return $this->executeEndpoint(new SystemEvents($queryParameters), $fetch);
     }
 
-    public static function create($httpClient = null)
+    public static function create($httpClient = null, array $additionalPlugins = [], array $additionalNormalizers = [])
     {
         if ($httpClient === null) {
             $httpClient = DockerClientFactory::createFromEnv();
         }
 
-        return parent::create($httpClient);
+        return parent::create($httpClient, $additionalPlugins, $additionalNormalizers);
     }
 }
