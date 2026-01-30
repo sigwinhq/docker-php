@@ -17,8 +17,10 @@ namespace Docker;
 
 use Docker\API\Client;
 use Docker\API\Model\AuthConfig;
+use Docker\Stream\AttachWebsocketStream;
 use Docker\Stream\BuildStream;
 use Docker\Stream\CreateImageStream;
+use Docker\Stream\DockerRawStream;
 use Docker\Stream\EventStream;
 use Docker\Stream\PushStream;
 
@@ -29,21 +31,41 @@ final class DockerClient extends Client
 {
     public function containerAttach(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
     {
+        if ($fetch === self::FETCH_OBJECT) {
+            $response = $this->executeRawEndpoint(new API\Endpoint\ContainerAttach($id, $queryParameters));
+            return new DockerRawStream($response->getBody(), $this->serializer);
+        }
+        
         return $this->executeEndpoint(new API\Endpoint\ContainerAttach($id, $queryParameters), $fetch);
     }
 
     public function containerAttachWebsocket(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
     {
+        if ($fetch === self::FETCH_OBJECT) {
+            $response = $this->executeRawEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters));
+            return new AttachWebsocketStream($response->getBody());
+        }
+        
         return $this->executeEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters), $fetch);
     }
 
     public function containerLogs(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
     {
+        if ($fetch === self::FETCH_OBJECT) {
+            $response = $this->executeRawEndpoint(new API\Endpoint\ContainerLogs($id, $queryParameters));
+            return new DockerRawStream($response->getBody(), $this->serializer);
+        }
+        
         return $this->executeEndpoint(new API\Endpoint\ContainerLogs($id, $queryParameters), $fetch);
     }
 
     public function execStart(string $id, API\Model\ExecIdStartPostBody $execStartConfig, string $fetch = self::FETCH_OBJECT)
     {
+        if ($fetch === self::FETCH_OBJECT) {
+            $response = $this->executeRawEndpoint(new API\Endpoint\ExecStart($id, $execStartConfig));
+            return new DockerRawStream($response->getBody(), $this->serializer);
+        }
+        
         return $this->executeEndpoint(new API\Endpoint\ExecStart($id, $execStartConfig), $fetch);
     }
 
