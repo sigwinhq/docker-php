@@ -114,6 +114,7 @@ final class ContainerResourceDockerTest extends DockerTestCase
             $output .= $data;
         }
         $webSocketStream->write("exit\n");
+        $this->getDockerClient()->containerKill($containerCreateResult->getId());
 
         self::assertStringContainsString('echo', $output);
     }
