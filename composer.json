@@ -6,10 +6,10 @@
     "require": {
         "php": "^8.3",
         "jane-php/open-api-runtime": "^7.10",
-        "symfony/filesystem": "^7.4 || ^8.0",
-        "symfony/process": "^7.4 || ^8.0",
         "php-http/discovery": "^1.20",
-        "symfony/http-client": "^8.0"
+        "symfony/filesystem": "^7.4 || ^8.0",
+        "symfony/http-client": "^8.0",
+        "symfony/process": "^7.4 || ^8.0"
     },
     "require-dev": {
         "jane-php/open-api-2": "^7.10",
@@ -28,14 +28,14 @@
             "Docker\\Tests\\": "tests/"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "3.x-dev"
-        }
-    },
     "config": {
         "allow-plugins": {
             "php-http/discovery": false
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.x-dev"
         }
     }
 }

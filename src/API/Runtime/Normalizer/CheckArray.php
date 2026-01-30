@@ -17,6 +17,9 @@ namespace Docker\API\Runtime\Normalizer;
 
 trait CheckArray
 {
+    /**
+     * @param array<array-key, mixed> $array
+     */
     public function isOnlyNumericKeys(array $array): bool
     {
         return \count(array_filter($array, static function ($key) {

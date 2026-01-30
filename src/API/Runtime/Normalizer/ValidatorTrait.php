@@ -20,6 +20,9 @@ use Symfony\Component\Validator\Validation;
 
 trait ValidatorTrait
 {
+    /**
+     * @param array<array-key, mixed> $data
+     */
     protected function validate(array $data, Constraint $constraint): void
     {
         $validator = Validation::createValidator();
