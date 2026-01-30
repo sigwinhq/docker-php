@@ -1,5 +1,5 @@
 {
-    "name": "docker-php/docker-php",
+    "name": "sigwin/docker-php",
     "description": "A Docker PHP client",
     "license": "MIT",
     "type": "library",
