@@ -48,7 +48,10 @@ final class DockerClientTest extends DockerTestCase
         $containerConfig->setImage('busybox:latest');
         $containerConfig->setCmd(['sh']);
         $containerConfig->setAttachStdout(true);
-        $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setLabels(new \ArrayObject([
+            'docker-php-test' => 'true',
+            'origin' => __METHOD__,
+        ]));
         $containerConfig->setHostConfig($hostConfig);
 
         $containerCreate = $client->containerCreate($containerConfig);

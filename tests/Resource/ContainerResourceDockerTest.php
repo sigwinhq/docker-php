@@ -28,14 +28,6 @@ use Docker\Tests\DockerTestCase;
 final class ContainerResourceDockerTest extends DockerTestCase
 {
     /**
-     * Return the container manager.
-     */
-    private function getManager()
-    {
-        return self::getDockerClient();
-    }
-
-    /**
      * Be sure to have image before doing test.
      */
     public static function setUpBeforeClass(): void
@@ -54,11 +46,14 @@ final class ContainerResourceDockerTest extends DockerTestCase
         $containerConfig->setImage('busybox:latest');
         $containerConfig->setCmd(['echo', '-n', 'output']);
         $containerConfig->setAttachStdout(true);
-        $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setLabels(new \ArrayObject([
+            'docker-php-test' => 'true',
+            'origin' => __METHOD__,
+        ]));
         $containerConfig->setHostConfig($hostConfig);
 
-        $containerCreateResult = $this->getManager()->containerCreate($containerConfig);
-        $dockerRawStream = $this->getManager()->containerAttach($containerCreateResult->getId(), [
+        $containerCreateResult = $this->getDockerClient()->containerCreate($containerConfig);
+        $dockerRawStream = $this->getDockerClient()->containerAttach($containerCreateResult->getId(), [
             'stream' => true,
             'stdout' => true,
         ]);
@@ -68,8 +63,8 @@ final class ContainerResourceDockerTest extends DockerTestCase
             $stdoutFull .= $stdout;
         });
 
-        $this->getManager()->containerStart($containerCreateResult->getId());
-        $this->getManager()->containerWait($containerCreateResult->getId());
+        $this->getDockerClient()->containerStart($containerCreateResult->getId());
+        $this->getDockerClient()->containerWait($containerCreateResult->getId());
 
         $dockerRawStream->wait();
 
@@ -89,18 +84,21 @@ final class ContainerResourceDockerTest extends DockerTestCase
         $containerConfig->setAttachStdin(false);
         $containerConfig->setOpenStdin(true);
         $containerConfig->setTty(true);
-        $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setLabels(new \ArrayObject([
+            'docker-php-test' => 'true',
+            'origin' => __METHOD__,
+        ]));
         $containerConfig->setHostConfig($hostConfig);
 
-        $containerCreateResult = $this->getManager()->containerCreate($containerConfig);
-        $webSocketStream = $this->getManager()->containerAttachWebsocket($containerCreateResult->getId(), [
+        $containerCreateResult = $this->getDockerClient()->containerCreate($containerConfig);
+        $webSocketStream = $this->getDockerClient()->containerAttachWebsocket($containerCreateResult->getId(), [
             'stream' => true,
             'stdout' => true,
             'stderr' => true,
             'stdin' => true,
         ]);
 
-        $this->getManager()->containerStart($containerCreateResult->getId());
+        $this->getDockerClient()->containerStart($containerCreateResult->getId());
 
         // Read the bash first line
         $webSocketStream->read();
@@ -111,17 +109,13 @@ final class ContainerResourceDockerTest extends DockerTestCase
         // Write something to the container
         $webSocketStream->write("echo test\n");
 
-        // Test for echo present (stdin)
         $output = '';
-
         while (($data = $webSocketStream->read()) !== false) {
             $output .= $data;
         }
+        $webSocketStream->write("exit\n");
 
         self::assertStringContainsString('echo', $output);
-
-        // Exit the container
-        $webSocketStream->write("exit\n");
     }
 
     public function testLogs(): void
@@ -136,12 +130,12 @@ final class ContainerResourceDockerTest extends DockerTestCase
         $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
         $containerConfig->setHostConfig($hostConfig);
 
-        $containerCreateResult = $this->getManager()->containerCreate($containerConfig);
+        $containerCreateResult = $this->getDockerClient()->containerCreate($containerConfig);
 
-        $this->getManager()->containerStart($containerCreateResult->getId());
-        $this->getManager()->containerWait($containerCreateResult->getId());
+        $this->getDockerClient()->containerStart($containerCreateResult->getId());
+        $this->getDockerClient()->containerWait($containerCreateResult->getId());
 
-        $logsStream = $this->getManager()->containerLogs($containerCreateResult->getId(), [
+        $logsStream = $this->getDockerClient()->containerLogs($containerCreateResult->getId(), [
             'stdout' => true,
             'stderr' => true,
         ]);

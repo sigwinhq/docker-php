@@ -30,30 +30,22 @@ use Docker\Tests\DockerTestCase;
 #[\PHPUnit\Framework\Attributes\Medium]
 final class ExecResourceDockerTest extends DockerTestCase
 {
-    /**
-     * Return the container manager.
-     */
-    private function getManager()
-    {
-        return self::getDockerClient();
-    }
-
     public function testStartStream(): void
     {
-        $createContainerResult = $this->createContainer();
+        $createContainerResult = $this->createContainer(__METHOD__);
 
         $execConfig = new ContainersIdExecPostBody();
         $execConfig->setAttachStdout(true);
         $execConfig->setAttachStderr(true);
         $execConfig->setCmd(['echo', 'output']);
 
-        $execCreateResult = $this->getManager()->containerExec($createContainerResult->getId(), $execConfig);
+        $execCreateResult = $this->getDockerClient()->containerExec($createContainerResult->getId(), $execConfig);
 
         $execStartConfig = new ExecIdStartPostBody();
         $execStartConfig->setDetach(false);
         $execStartConfig->setTty(false);
 
-        $stream = $this->getManager()->execStart($execCreateResult->getId(), $execStartConfig);
+        $stream = $this->getDockerClient()->execStart($execCreateResult->getId(), $execStartConfig);
 
         self::assertInstanceOf(DockerRawStream::class, $stream);
 
@@ -72,19 +64,19 @@ final class ExecResourceDockerTest extends DockerTestCase
 
     public function testExecFind(): void
     {
-        $createContainerResult = $this->createContainer();
+        $createContainerResult = $this->createContainer(__METHOD__);
 
         $execConfig = new ContainersIdExecPostBody();
         $execConfig->setCmd(['/bin/true']);
-        $execCreateResult = $this->getManager()->containerExec($createContainerResult->getId(), $execConfig);
+        $execCreateResult = $this->getDockerClient()->containerExec($createContainerResult->getId(), $execConfig);
 
         $execStartConfig = new ExecIdStartPostBody();
         $execStartConfig->setDetach(false);
         $execStartConfig->setTty(false);
 
-        $this->getManager()->execStart($execCreateResult->getId(), $execStartConfig);
+        $this->getDockerClient()->execStart($execCreateResult->getId(), $execStartConfig);
 
-        $execFindResult = $this->getManager()->execInspect($execCreateResult->getId());
+        $execFindResult = $this->getDockerClient()->execInspect($execCreateResult->getId());
 
         self::getDockerClient()->containerStop($createContainerResult->getId(), [
             'signal' => 'SIGKILL',
@@ -93,7 +85,7 @@ final class ExecResourceDockerTest extends DockerTestCase
         self::assertInstanceOf(ExecIdJsonGetResponse200::class, $execFindResult);
     }
 
-    private function createContainer()
+    private function createContainer(string $origin)
     {
         $hostConfig = new HostConfig();
         $hostConfig->setAutoRemove(true);
@@ -102,7 +94,10 @@ final class ExecResourceDockerTest extends DockerTestCase
         $containerConfig->setImage('busybox:latest');
         $containerConfig->setCmd(['sh']);
         $containerConfig->setOpenStdin(true);
-        $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setLabels(new \ArrayObject([
+            'docker-php-test' => 'true',
+            'origin' => $origin,
+        ]));
         $containerConfig->setHostConfig($hostConfig);
 
         $containerCreateResult = self::getDockerClient()->containerCreate($containerConfig);
