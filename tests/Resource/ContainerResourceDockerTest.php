@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Docker\Tests\Resource;
 
 use Docker\API\Model\ContainersCreatePostBody;
-use Docker\DockerClient;
 use Docker\Stream\DockerRawStream;
 use Docker\Tests\DockerTestCase;
 
@@ -132,7 +131,7 @@ final class ContainerResourceDockerTest extends DockerTestCase
         $logsStream = $this->getManager()->containerLogs($containerCreateResult->getId(), [
             'stdout' => true,
             'stderr' => true,
-        ], DockerClient::FETCH_OBJECT);
+        ]);
 
         self::assertInstanceOf(DockerRawStream::class, $logsStream);
     }
