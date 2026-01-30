@@ -33,7 +33,7 @@ final class EndpointSettings
      */
     private $iPAMConfig;
     /**
-     * @var list<string>
+     * @var null|list<string>
      */
     private $links;
     /**
@@ -43,7 +43,7 @@ final class EndpointSettings
      */
     private $macAddress;
     /**
-     * @var list<string>
+     * @var null|list<string>
      */
     private $aliases;
     /**
@@ -122,7 +122,7 @@ final class EndpointSettings
      * `testnet`, `DNSNames` will contain `my.ctr` and the FQDN will be
      * `my.ctr.testnet`.
      *
-     * @var list<string>
+     * @var null|list<string>
      */
     private $dNSNames;
 
@@ -146,17 +146,17 @@ final class EndpointSettings
     }
 
     /**
-     * @return list<string>
+     * @return null|list<string>
      */
-    public function getLinks(): array
+    public function getLinks(): ?array
     {
         return $this->links;
     }
 
     /**
-     * @param list<string> $links
+     * @param null|list<string> $links
      */
-    public function setLinks(array $links): self
+    public function setLinks(?array $links): self
     {
         $this->initialized['links'] = true;
         $this->links = $links;
@@ -184,17 +184,17 @@ final class EndpointSettings
     }
 
     /**
-     * @return list<string>
+     * @return null|list<string>
      */
-    public function getAliases(): array
+    public function getAliases(): ?array
     {
         return $this->aliases;
     }
 
     /**
-     * @param list<string> $aliases
+     * @param null|list<string> $aliases
      */
-    public function setAliases(array $aliases): self
+    public function setAliases(?array $aliases): self
     {
         $this->initialized['aliases'] = true;
         $this->aliases = $aliases;
@@ -417,9 +417,9 @@ final class EndpointSettings
      * `testnet`, `DNSNames` will contain `my.ctr` and the FQDN will be
      * `my.ctr.testnet`.
      *
-     * @return list<string>
+     * @return null|list<string>
      */
-    public function getDNSNames(): array
+    public function getDNSNames(): ?array
     {
         return $this->dNSNames;
     }
@@ -435,9 +435,9 @@ final class EndpointSettings
      * `testnet`, `DNSNames` will contain `my.ctr` and the FQDN will be
      * `my.ctr.testnet`.
      *
-     * @param list<string> $dNSNames
+     * @param null|list<string> $dNSNames
      */
-    public function setDNSNames(array $dNSNames): self
+    public function setDNSNames(?array $dNSNames): self
     {
         $this->initialized['dNSNames'] = true;
         $this->dNSNames = $dNSNames;
