@@ -33,7 +33,7 @@ final readonly class DockerClient
 
     public function __call(string $name, array $arguments)
     {
-        return $this->client->$name(...$arguments);
+        return $this->client->{$name}(...$arguments);
     }
 
     public function containerAttach(string $id, array $queryParameters = [], string $fetch = Client::FETCH_OBJECT)
