@@ -1,0 +1,248 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+namespace Docker\API\Model;
+
+final class SwarmInfo
+{
+    /**
+     * @var array
+     */
+    private $initialized = [];
+
+    public function isInitialized($property): bool
+    {
+        return \array_key_exists($property, $this->initialized);
+    }
+    /**
+     * Unique identifier of for this node in the swarm.
+     *
+     * @var string
+     */
+    private $nodeID = '';
+    /**
+     * IP address at which this node can be reached by other nodes in the
+     * swarm.
+     *
+     * @var string
+     */
+    private $nodeAddr = '';
+    /**
+     * Current local status of this node.
+     *
+     * @var string
+     */
+    private $localNodeState = '';
+    /**
+     * @var bool
+     */
+    private $controlAvailable = false;
+    /**
+     * @var string
+     */
+    private $error = '';
+    /**
+     * List of ID's and addresses of other managers in the swarm.
+     *
+     * @var null|list<PeerNode>
+     */
+    private $remoteManagers;
+    /**
+     * Total number of nodes in the swarm.
+     *
+     * @var null|int
+     */
+    private $nodes;
+    /**
+     * Total number of managers in the swarm.
+     *
+     * @var null|int
+     */
+    private $managers;
+    /**
+     * ClusterInfo represents information about the swarm as is returned by the
+     * "/info" endpoint. Join-tokens are not included.
+     *
+     * @var null|ClusterInfo
+     */
+    private $cluster;
+
+    /**
+     * Unique identifier of for this node in the swarm.
+     */
+    public function getNodeID(): string
+    {
+        return $this->nodeID;
+    }
+
+    /**
+     * Unique identifier of for this node in the swarm.
+     */
+    public function setNodeID(string $nodeID): self
+    {
+        $this->initialized['nodeID'] = true;
+        $this->nodeID = $nodeID;
+
+        return $this;
+    }
+
+    /**
+     * IP address at which this node can be reached by other nodes in the
+     * swarm.
+     */
+    public function getNodeAddr(): string
+    {
+        return $this->nodeAddr;
+    }
+
+    /**
+     * IP address at which this node can be reached by other nodes in the
+     * swarm.
+     */
+    public function setNodeAddr(string $nodeAddr): self
+    {
+        $this->initialized['nodeAddr'] = true;
+        $this->nodeAddr = $nodeAddr;
+
+        return $this;
+    }
+
+    /**
+     * Current local status of this node.
+     */
+    public function getLocalNodeState(): string
+    {
+        return $this->localNodeState;
+    }
+
+    /**
+     * Current local status of this node.
+     */
+    public function setLocalNodeState(string $localNodeState): self
+    {
+        $this->initialized['localNodeState'] = true;
+        $this->localNodeState = $localNodeState;
+
+        return $this;
+    }
+
+    public function getControlAvailable(): bool
+    {
+        return $this->controlAvailable;
+    }
+
+    public function setControlAvailable(bool $controlAvailable): self
+    {
+        $this->initialized['controlAvailable'] = true;
+        $this->controlAvailable = $controlAvailable;
+
+        return $this;
+    }
+
+    public function getError(): string
+    {
+        return $this->error;
+    }
+
+    public function setError(string $error): self
+    {
+        $this->initialized['error'] = true;
+        $this->error = $error;
+
+        return $this;
+    }
+
+    /**
+     * List of ID's and addresses of other managers in the swarm.
+     *
+     * @return null|list<PeerNode>
+     */
+    public function getRemoteManagers(): ?array
+    {
+        return $this->remoteManagers;
+    }
+
+    /**
+     * List of ID's and addresses of other managers in the swarm.
+     *
+     * @param null|list<PeerNode> $remoteManagers
+     */
+    public function setRemoteManagers(?array $remoteManagers): self
+    {
+        $this->initialized['remoteManagers'] = true;
+        $this->remoteManagers = $remoteManagers;
+
+        return $this;
+    }
+
+    /**
+     * Total number of nodes in the swarm.
+     */
+    public function getNodes(): ?int
+    {
+        return $this->nodes;
+    }
+
+    /**
+     * Total number of nodes in the swarm.
+     */
+    public function setNodes(?int $nodes): self
+    {
+        $this->initialized['nodes'] = true;
+        $this->nodes = $nodes;
+
+        return $this;
+    }
+
+    /**
+     * Total number of managers in the swarm.
+     */
+    public function getManagers(): ?int
+    {
+        return $this->managers;
+    }
+
+    /**
+     * Total number of managers in the swarm.
+     */
+    public function setManagers(?int $managers): self
+    {
+        $this->initialized['managers'] = true;
+        $this->managers = $managers;
+
+        return $this;
+    }
+
+    /**
+     * ClusterInfo represents information about the swarm as is returned by the
+     * "/info" endpoint. Join-tokens are not included.
+     */
+    public function getCluster(): ?ClusterInfo
+    {
+        return $this->cluster;
+    }
+
+    /**
+     * ClusterInfo represents information about the swarm as is returned by the
+     * "/info" endpoint. Join-tokens are not included.
+     */
+    public function setCluster(?ClusterInfo $cluster): self
+    {
+        $this->initialized['cluster'] = true;
+        $this->cluster = $cluster;
+
+        return $this;
+    }
+}

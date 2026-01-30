@@ -1,0 +1,83 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+namespace Docker\API\Model;
+
+final class ContainersPrunePostResponse200
+{
+    /**
+     * @var array
+     */
+    private $initialized = [];
+
+    public function isInitialized($property): bool
+    {
+        return \array_key_exists($property, $this->initialized);
+    }
+    /**
+     * Container IDs that were deleted.
+     *
+     * @var list<string>
+     */
+    private $containersDeleted;
+    /**
+     * Disk space reclaimed in bytes.
+     *
+     * @var int
+     */
+    private $spaceReclaimed;
+
+    /**
+     * Container IDs that were deleted.
+     *
+     * @return list<string>
+     */
+    public function getContainersDeleted(): array
+    {
+        return $this->containersDeleted;
+    }
+
+    /**
+     * Container IDs that were deleted.
+     *
+     * @param list<string> $containersDeleted
+     */
+    public function setContainersDeleted(array $containersDeleted): self
+    {
+        $this->initialized['containersDeleted'] = true;
+        $this->containersDeleted = $containersDeleted;
+
+        return $this;
+    }
+
+    /**
+     * Disk space reclaimed in bytes.
+     */
+    public function getSpaceReclaimed(): int
+    {
+        return $this->spaceReclaimed;
+    }
+
+    /**
+     * Disk space reclaimed in bytes.
+     */
+    public function setSpaceReclaimed(int $spaceReclaimed): self
+    {
+        $this->initialized['spaceReclaimed'] = true;
+        $this->spaceReclaimed = $spaceReclaimed;
+
+        return $this;
+    }
+}

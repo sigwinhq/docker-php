@@ -2,6 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the docker-php project.
+ *
+ * (c) 2013 Geoffrey Bachelet <geoffrey.bachelet@gmail.com> and contributors
+ * (c) 2019 Joël Wurtz
+ * (c) 2026 sigwin.hr
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Docker\Context;
 
 use Symfony\Component\Filesystem\Filesystem;
@@ -11,7 +22,7 @@ use Symfony\Component\Process\Process;
 /**
  * Docker\Context\Context.
  */
-class Context implements ContextInterface
+final class Context implements ContextInterface
 {
     public const FORMAT_STREAM = 'stream';
 
@@ -28,7 +39,7 @@ class Context implements ContextInterface
     private $directory;
 
     /**
-     * @var process Tar process
+     * @var Process Tar process
      */
     private $process;
 
@@ -52,7 +63,7 @@ class Context implements ContextInterface
      * @param string     $format    Format to use when sending the call (stream or tar: string)
      * @param Filesystem $fs        filesystem object for cleaning the context directory on destruction
      */
-    public function __construct($directory, $format = self::FORMAT_STREAM, Filesystem $fs = null)
+    public function __construct($directory, $format = self::FORMAT_STREAM, ?Filesystem $fs = null)
     {
         $this->directory = $directory;
         $this->format = $format;
@@ -61,10 +72,8 @@ class Context implements ContextInterface
 
     /**
      * Get directory of Context.
-     *
-     * @return string
      */
-    public function getDirectory()
+    public function getDirectory(): string
     {
         return $this->directory;
     }
@@ -84,17 +93,14 @@ class Context implements ContextInterface
      *
      * @return string Content of dockerfile
      */
-    public function getDockerfileContent()
+    public function getDockerfileContent(): string
     {
-        return \file_get_contents($this->directory.DIRECTORY_SEPARATOR.'Dockerfile');
+        return file_get_contents($this->directory.\DIRECTORY_SEPARATOR.'Dockerfile');
     }
 
-    /**
-     * @return bool
-     */
-    public function isStreamed()
+    public function isStreamed(): bool
     {
-        return self::FORMAT_STREAM === $this->format;
+        return $this->format === self::FORMAT_STREAM;
     }
 
     /**
@@ -108,16 +114,16 @@ class Context implements ContextInterface
     /**
      * Return the context as a tar archive.
      *
-     * @throws \Symfony\Component\Process\Exception\ProcessFailedException
-     *
      * @return string Tar content
+     *
+     * @throws ProcessFailedException
      */
-    public function toTar()
+    public function toTar(): string
     {
-        $process = new Process('/usr/bin/env tar c .', $this->directory);
+        $process = new Process(['/usr/bin/env', 'tar', 'c', '.'], $this->directory);
         $process->run();
 
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
@@ -131,9 +137,17 @@ class Context implements ContextInterface
      */
     public function toStream()
     {
-        if (!\is_resource($this->process)) {
-            $this->process = \proc_open('/usr/bin/env tar c .', [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, $this->directory);
-            $this->stream = $pipes[1];
+        if (! \is_resource($this->stream)) {
+            $this->process = proc_open('/usr/bin/env tar c .', [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, $this->directory);
+            $tarStream = $pipes[1];
+
+            // Create a seekable memory stream since proc_open pipes are not seekable
+            // and HTTP clients may need to read the stream multiple times
+            $this->stream = fopen('php://temp', 'r+');
+            stream_copy_to_stream($tarStream, $this->stream);
+            rewind($this->stream);
+
+            fclose($tarStream);
         }
 
         return $this->stream;
@@ -142,11 +156,11 @@ class Context implements ContextInterface
     public function __destruct()
     {
         if (\is_resource($this->stream)) {
-            \fclose($this->stream);
+            fclose($this->stream);
         }
 
         if (\is_resource($this->process)) {
-            \proc_close($this->process);
+            proc_close($this->process);
         }
 
         if ($this->cleanup) {
