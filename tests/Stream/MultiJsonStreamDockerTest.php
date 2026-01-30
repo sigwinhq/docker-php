@@ -31,8 +31,6 @@ final class MultiJsonStreamDockerTest extends DockerTestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('provideReadJsonEscapedDoubleQuoteCases')]
     public function testReadJsonEscapedDoubleQuote(string $jsonStream, array $jsonParts): void
     {
-        self::markTestSkipped('Stream handling needs refactoring with Nyholm PSR-7 - the stream does not EOF properly in tests');
-
         $stream = Stream::create($jsonStream);
 
         $serializer = $this->getMockBuilder(SerializerInterface::class)
