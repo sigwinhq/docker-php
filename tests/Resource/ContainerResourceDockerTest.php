@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Docker\Tests\Resource;
 
 use Docker\API\Model\ContainersCreatePostBody;
+use Docker\API\Model\HostConfig;
 use Docker\Stream\DockerRawStream;
 use Docker\Tests\DockerTestCase;
 
@@ -117,11 +118,15 @@ final class ContainerResourceDockerTest extends DockerTestCase
 
     public function testLogs(): void
     {
+        $hostConfig = new HostConfig();
+        $hostConfig->setAutoRemove(true);
+
         $containerConfig = new ContainersCreatePostBody();
         $containerConfig->setImage('busybox:latest');
         $containerConfig->setCmd(['echo', '-n', 'output']);
         $containerConfig->setAttachStdout(true);
         $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setHostConfig($hostConfig);
 
         $containerCreateResult = $this->getManager()->containerCreate($containerConfig);
 

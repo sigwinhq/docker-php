@@ -37,7 +37,6 @@ final class DockerHttpClientFactoryTest extends DockerTestCase
         self::assertInstanceOf(ClientInterface::class, DockerHttpClientFactory::create());
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
     public function testCreateFromEnvWithoutCertPath(): void
     {
         $this->expectException(\RuntimeException::class);
@@ -52,8 +51,7 @@ final class DockerHttpClientFactoryTest extends DockerTestCase
         putenv('DOCKER_TLS_VERIFY=1');
         putenv('DOCKER_CERT_PATH=/tmp');
 
-        $client = DockerHttpClientFactory::createFromEnv();
-        self::assertInstanceOf(ClientInterface::class, $client);
+        self::assertInstanceOf(ClientInterface::class, DockerHttpClientFactory::createFromEnv());
     }
 
     public function testCreateCustomPeerName(): void
@@ -61,7 +59,6 @@ final class DockerHttpClientFactoryTest extends DockerTestCase
         putenv('DOCKER_TLS_VERIFY=1');
         putenv('DOCKER_CERT_PATH=/abc');
 
-        $client = DockerHttpClientFactory::createFromEnv();
-        self::assertInstanceOf(ClientInterface::class, $client);
+        self::assertInstanceOf(ClientInterface::class, DockerHttpClientFactory::createFromEnv());
     }
 }
