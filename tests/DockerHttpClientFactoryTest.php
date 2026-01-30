@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Docker\Tests;
 
-use Docker\DockerClientFactory;
+use Docker\DockerHttpClientFactory;
 use Psr\Http\Client\ClientInterface;
 
 /**
@@ -23,7 +23,7 @@ use Psr\Http\Client\ClientInterface;
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class DockerClientFactoryDockerTest extends DockerTestCase
+final class DockerHttpClientFactoryTest extends DockerTestCase
 {
     protected function tearDown(): void
     {
@@ -34,7 +34,7 @@ final class DockerClientFactoryDockerTest extends DockerTestCase
 
     public function testStaticConstructor(): void
     {
-        self::assertInstanceOf(ClientInterface::class, DockerClientFactory::create());
+        self::assertInstanceOf(ClientInterface::class, DockerHttpClientFactory::create());
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
@@ -44,7 +44,7 @@ final class DockerClientFactoryDockerTest extends DockerTestCase
         $this->expectExceptionMessage('Connection to docker has been set to use TLS, but no PATH is defined for certificate in DOCKER_CERT_PATH docker environment variable');
 
         putenv('DOCKER_TLS_VERIFY=1');
-        DockerClientFactory::createFromEnv();
+        DockerHttpClientFactory::createFromEnv();
     }
 
     public function testCreateCustomCa(): void
@@ -52,7 +52,7 @@ final class DockerClientFactoryDockerTest extends DockerTestCase
         putenv('DOCKER_TLS_VERIFY=1');
         putenv('DOCKER_CERT_PATH=/tmp');
 
-        $client = DockerClientFactory::createFromEnv();
+        $client = DockerHttpClientFactory::createFromEnv();
         self::assertInstanceOf(ClientInterface::class, $client);
     }
 
@@ -61,7 +61,7 @@ final class DockerClientFactoryDockerTest extends DockerTestCase
         putenv('DOCKER_TLS_VERIFY=1');
         putenv('DOCKER_CERT_PATH=/abc');
 
-        $client = DockerClientFactory::createFromEnv();
+        $client = DockerHttpClientFactory::createFromEnv();
         self::assertInstanceOf(ClientInterface::class, $client);
     }
 }

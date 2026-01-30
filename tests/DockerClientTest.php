@@ -18,7 +18,7 @@ namespace Docker\Tests;
 use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\HostConfig;
 use Docker\DockerClient;
-use Docker\DockerClientFactory;
+use Docker\DockerHttpClientFactory;
 use Http\Client\HttpAsyncClient;
 use Psr\Http\Client\ClientInterface;
 
@@ -36,13 +36,13 @@ final class DockerClientTest extends DockerTestCase
 
     public function testHttpClientImplementsSyncInterface(): void
     {
-        $httpClient = DockerClientFactory::create();
+        $httpClient = DockerHttpClientFactory::create();
         self::assertInstanceOf(ClientInterface::class, $httpClient);
     }
 
     public function testHttpClientImplementsAsyncInterface(): void
     {
-        $httpClient = DockerClientFactory::create();
+        $httpClient = DockerHttpClientFactory::create();
         self::assertInstanceOf(HttpAsyncClient::class, $httpClient,
             'HttplugClient should implement HttpAsyncClient for async support');
     }

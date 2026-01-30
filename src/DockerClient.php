@@ -131,7 +131,7 @@ final readonly class DockerClient
     public static function create($httpClient = null, array $additionalPlugins = [], array $additionalNormalizers = []): self
     {
         if ($httpClient === null) {
-            $httpClient = DockerClientFactory::createFromEnv();
+            $httpClient = DockerHttpClientFactory::createFromEnv();
         }
 
         if (\count($additionalPlugins) > 0) {

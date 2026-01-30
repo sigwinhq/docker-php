@@ -19,7 +19,7 @@ use Psr\Http\Client\ClientInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttplugClient;
 
-final class DockerClientFactory
+final class DockerHttpClientFactory
 {
     public static function create(array $config = []): ClientInterface
     {
