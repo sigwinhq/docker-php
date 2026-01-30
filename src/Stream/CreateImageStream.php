@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Docker\Stream;
 
+use Docker\API\Model\CreateImageInfo;
+
 /**
  * Represent a stream when pull or importing an image (with the create api endpoint of image).
  *
@@ -22,11 +24,8 @@ namespace Docker\Stream;
  */
 final class CreateImageStream extends MultiJsonStream
 {
-    /**
-     * [@inheritdoc}.
-     */
     protected function getDecodeClass(): string
     {
-        return 'CreateImageInfo';
+        return CreateImageInfo::class;
     }
 }

@@ -33,9 +33,10 @@ final class DockerClient extends Client
     {
         if ($fetch === self::FETCH_OBJECT) {
             $response = $this->executeRawEndpoint(new API\Endpoint\ContainerAttach($id, $queryParameters));
+
             return new DockerRawStream($response->getBody(), $this->serializer);
         }
-        
+
         return $this->executeEndpoint(new API\Endpoint\ContainerAttach($id, $queryParameters), $fetch);
     }
 
@@ -43,9 +44,10 @@ final class DockerClient extends Client
     {
         if ($fetch === self::FETCH_OBJECT) {
             $response = $this->executeRawEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters));
+
             return new AttachWebsocketStream($response->getBody());
         }
-        
+
         return $this->executeEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters), $fetch);
     }
 
@@ -53,9 +55,10 @@ final class DockerClient extends Client
     {
         if ($fetch === self::FETCH_OBJECT) {
             $response = $this->executeRawEndpoint(new API\Endpoint\ContainerLogs($id, $queryParameters));
+
             return new DockerRawStream($response->getBody(), $this->serializer);
         }
-        
+
         return $this->executeEndpoint(new API\Endpoint\ContainerLogs($id, $queryParameters), $fetch);
     }
 
@@ -63,9 +66,10 @@ final class DockerClient extends Client
     {
         if ($fetch === self::FETCH_OBJECT) {
             $response = $this->executeRawEndpoint(new API\Endpoint\ExecStart($id, $execStartConfig));
+
             return new DockerRawStream($response->getBody(), $this->serializer);
         }
-        
+
         return $this->executeEndpoint(new API\Endpoint\ExecStart($id, $execStartConfig), $fetch);
     }
 

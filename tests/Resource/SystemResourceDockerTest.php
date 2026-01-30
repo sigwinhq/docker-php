@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Docker\Tests\Resource;
 
-use Docker\API\Model\EventsGetResponse200;
 use Docker\Tests\DockerTestCase;
 
 /**
@@ -52,6 +51,7 @@ final class SystemResourceDockerTest extends DockerTestCase
 
         $stream->wait();
 
-        self::assertInstanceOf(EventsGetResponse200::class, $lastEvent);
+        self::assertNotNull($lastEvent);
+        self::assertInstanceOf(\Docker\API\Model\EventMessage::class, $lastEvent);
     }
 }

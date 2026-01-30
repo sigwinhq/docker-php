@@ -62,15 +62,15 @@ abstract class Client
         $queryString = $endpoint->getQueryString();
         $uriGlue = ! str_contains($endpoint->getUri(), '?') ? '?' : '&';
         $uri = $queryString !== '' ? $endpoint->getUri().$uriGlue.$queryString : $endpoint->getUri();
-        
+
         // Encode colons in the path to prevent URI parsing issues with image names like "localhost:5000/image"
         // Only encode if this is a path (starts with /) not a full URI
         if (str_starts_with($uri, '/')) {
             $parts = explode('?', $uri, 2);
             $path = str_replace(':', '%3A', $parts[0]);
-            $uri = count($parts) > 1 ? $path . '?' . $parts[1] : $path;
+            $uri = \count($parts) > 1 ? $path.'?'.$parts[1] : $path;
         }
-        
+
         $request = $this->requestFactory->createRequest($endpoint->getMethod(), $uri);
         if ($body) {
             if ($body instanceof StreamInterface) {

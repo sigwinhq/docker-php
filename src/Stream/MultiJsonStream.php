@@ -77,11 +77,11 @@ abstract class MultiJsonStream extends CallbackStream
             return null;
         }
 
-        return $this->serializer->deserialize($jsonFrame, 'Docker\API\Model\\'.$this->getDecodeClass(), 'json');
+        return $this->serializer->deserialize($jsonFrame, $this->getDecodeClass(), 'json');
     }
 
     /**
-     * Get the decode class to pass to serializer.
+     * @return class-string
      */
     abstract protected function getDecodeClass(): string;
 }

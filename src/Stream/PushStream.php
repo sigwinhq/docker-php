@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Docker\Stream;
 
+use Docker\API\Model\PushImageInfo;
+
 /**
  * Represent a stream when pushing an image to a repository (with the push api endpoint of image).
  *
@@ -24,6 +26,6 @@ final class PushStream extends MultiJsonStream
 {
     protected function getDecodeClass(): string
     {
-        return 'PushImageInfo';
+        return PushImageInfo::class;
     }
 }

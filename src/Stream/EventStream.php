@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Docker\Stream;
 
+use Docker\API\Model\EventMessage;
+
 /**
  * Represent a stream when pushing an image to a repository (with the push api endpoint of image).
  *
@@ -22,11 +24,8 @@ namespace Docker\Stream;
  */
 final class EventStream extends MultiJsonStream
 {
-    /**
-     * [@inheritdoc}.
-     */
     protected function getDecodeClass(): string
     {
-        return 'EventsGetResponse200';
+        return EventMessage::class;
     }
 }

@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Docker\Stream;
 
+use Docker\API\Model\BuildInfo;
+
 /**
  * Represent a stream when building a dockerfile.
  *
@@ -22,11 +24,8 @@ namespace Docker\Stream;
  */
 final class BuildStream extends MultiJsonStream
 {
-    /**
-     * [@inheritdoc}.
-     */
     protected function getDecodeClass(): string
     {
-        return 'BuildInfo';
+        return BuildInfo::class;
     }
 }
