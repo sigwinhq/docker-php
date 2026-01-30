@@ -22,9 +22,8 @@ trait EndpointTrait
 {
     abstract protected function transformResponseBody(ResponseInterface $response, SerializerInterface $serializer, ?string $contentType = null);
 
-    public function parseResponse(ResponseInterface $response, SerializerInterface $serializer, string $fetchMode = Client::FETCH_OBJECT): mixed
+    public function parseResponse(ResponseInterface $response, SerializerInterface $serializer, string $fetchMode = Client::FETCH_OBJECT)
     {
-        /** @var null|string $contentType */
         $contentType = $response->hasHeader('Content-Type') ? current($response->getHeader('Content-Type')) : null;
 
         return $this->transformResponseBody($response, $serializer, $contentType);
