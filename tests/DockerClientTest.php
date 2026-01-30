@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Docker\Tests;
 
 use Docker\API\Model\ContainersCreatePostBody;
+use Docker\API\Model\HostConfig;
 use Docker\DockerClient;
 use Docker\DockerClientFactory;
 use Http\Client\HttpAsyncClient;
@@ -48,12 +49,15 @@ final class DockerClientTest extends DockerTestCase
 
     public function testContainerLifecycle(): void
     {
-        $docker = self::getDockerClient();
+        $client = self::getDockerClient();
 
         // Pull image if needed
-        $docker->imageCreate('', [
+        $client->imageCreate('', [
             'fromImage' => 'busybox:latest',
         ]);
+
+        $hostConfig = new HostConfig();
+        $hostConfig->setAutoRemove(true);
 
         // Create container
         $containerConfig = new ContainersCreatePostBody();
@@ -61,18 +65,19 @@ final class DockerClientTest extends DockerTestCase
         $containerConfig->setCmd(['echo', '-n', 'output']);
         $containerConfig->setAttachStdout(true);
         $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setHostConfig($hostConfig);
 
-        $containerCreate = $docker->containerCreate($containerConfig);
+        $containerCreate = $client->containerCreate($containerConfig);
         self::assertNotNull($containerCreate->getId());
 
         // Start container
-        $docker->containerStart($containerCreate->getId());
+        $client->containerStart($containerCreate->getId());
 
         // Wait for container to finish
-        $docker->containerWait($containerCreate->getId());
+        $client->containerWait($containerCreate->getId());
 
         // List containers to verify it exists
-        $containers = $docker->containerList(['all' => true]);
+        $containers = $client->containerList(['all' => true]);
         $found = false;
         foreach ($containers as $container) {
             if ($container->getId() === $containerCreate->getId()) {
@@ -80,9 +85,8 @@ final class DockerClientTest extends DockerTestCase
                 break;
             }
         }
-        self::assertTrue($found, 'Container should be in the list');
+        $client->containerDelete($containerCreate->getId());
 
-        // Cleanup
-        $docker->containerDelete($containerCreate->getId());
+        self::assertTrue($found, 'Container should be in the list');
     }
 }
