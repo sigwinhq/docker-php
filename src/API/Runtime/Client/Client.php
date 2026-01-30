@@ -25,8 +25,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 abstract class Client
 {
-    public const string FETCH_RESPONSE = 'response';
-    public const string FETCH_OBJECT = 'object';
+    public const FETCH_RESPONSE = 'response';
+    public const FETCH_OBJECT = 'object';
     protected ClientInterface $httpClient;
     protected RequestFactoryInterface $requestFactory;
     protected SerializerInterface $serializer;
