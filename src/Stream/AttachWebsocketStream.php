@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace Docker\Stream;
 
-use Psr\Http\Message\StreamInterface;
-
 /**
  * An interactive stream is used when communicating with an attached docker container.
  *
@@ -29,9 +27,16 @@ final class AttachWebsocketStream
     /** @var resource The underlying socket */
     private $socket;
 
-    public function __construct(StreamInterface $stream)
+    /**
+     * @param resource $socket Raw socket resource (after WebSocket upgrade handshake)
+     */
+    public function __construct($socket)
     {
-        $this->socket = $stream->detach();
+        if (! \is_resource($socket)) {
+            throw new \InvalidArgumentException('Expected a socket resource');
+        }
+
+        $this->socket = $socket;
     }
 
     /**
@@ -102,11 +107,7 @@ final class AttachWebsocketStream
      */
     public function read($waitTime = 0, $waitMicroTime = 200000, $getFrame = false): bool|string|array|null
     {
-        if (! \is_resource($this->socket)) {
-            return null;
-        }
-
-        if (feof($this->socket)) {
+        if (! \is_resource($this->socket) || feof($this->socket)) {
             return null;
         }
 
@@ -114,13 +115,7 @@ final class AttachWebsocketStream
         $write = [];
         $expect = [];
 
-        $result = @stream_select($read, $write, $expect, $waitTime, $waitMicroTime);
-
-        if ($result === false) {
-            return null;
-        }
-
-        if ($result === 0) {
+        if (0 === stream_select($read, $write, $expect, $waitTime, $waitMicroTime)) {
             return false;
         }
 

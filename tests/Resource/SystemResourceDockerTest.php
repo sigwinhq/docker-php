@@ -35,7 +35,7 @@ final class SystemResourceDockerTest extends DockerTestCase
     public function testGetEvents(): void
     {
         $stream = $this->getManager()->systemEvents([
-            'since' => (string) (time()),
+            'since' => (string) time(),
             'until' => (string) (time() + 5),
         ]);
 

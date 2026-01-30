@@ -39,7 +39,6 @@ final class ImageResourceDockerTest extends DockerTestCase
     public function testBuild(): void
     {
         $contextBuilder = new ContextBuilder();
-        $contextBuilder->setFormat(\Docker\Context\Context::FORMAT_TAR);
         $contextBuilder->from('busybox:latest');
         $contextBuilder->add('/test', 'test file content');
 
@@ -83,7 +82,6 @@ final class ImageResourceDockerTest extends DockerTestCase
     public function testPushStream(): void
     {
         $contextBuilder = new ContextBuilder();
-        $contextBuilder->setFormat(\Docker\Context\Context::FORMAT_TAR);
         $contextBuilder->from('busybox:latest');
         $contextBuilder->add('/test', 'test file content');
 

@@ -50,9 +50,10 @@ final readonly class DockerClient
     public function containerAttachWebsocket(string $id, array $queryParameters = [], string $fetch = Client::FETCH_OBJECT)
     {
         if ($fetch === Client::FETCH_OBJECT) {
-            $response = $this->client->executeRawEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters));
+            $endpoint = new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters);
+            $path = $endpoint->getUri();
 
-            return new AttachWebsocketStream($response->getBody());
+            return new AttachWebsocketStream(DockerHttpClientFactory::createWebSocketConnection($path, $queryParameters));
         }
 
         return $this->client->executeEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters), $fetch);

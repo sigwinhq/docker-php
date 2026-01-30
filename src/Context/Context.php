@@ -137,9 +137,17 @@ final class Context implements ContextInterface
      */
     public function toStream()
     {
-        if (! \is_resource($this->process)) {
+        if (! \is_resource($this->stream)) {
             $this->process = proc_open('/usr/bin/env tar c .', [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, $this->directory);
-            $this->stream = $pipes[1];
+            $tarStream = $pipes[1];
+
+            // Create a seekable memory stream since proc_open pipes are not seekable
+            // and HTTP clients may need to read the stream multiple times
+            $this->stream = fopen('php://temp', 'r+');
+            stream_copy_to_stream($tarStream, $this->stream);
+            rewind($this->stream);
+
+            fclose($tarStream);
         }
 
         return $this->stream;

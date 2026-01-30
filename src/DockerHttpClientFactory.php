@@ -15,12 +15,28 @@ declare(strict_types=1);
 
 namespace Docker;
 
+use Docker\Stream\WebSocketHandshake;
 use Psr\Http\Client\ClientInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttplugClient;
 
 final class DockerHttpClientFactory
 {
+    /**
+     * Create a WebSocket connection to Docker daemon.
+     *
+     * @param string $path  WebSocket endpoint path
+     * @param array  $query Query parameters
+     *
+     * @return resource Raw socket resource after WebSocket upgrade
+     */
+    public static function createWebSocketConnection(string $path, array $query = [])
+    {
+        $dockerHost = getenv('DOCKER_HOST') ?: 'unix:///var/run/docker.sock';
+
+        return WebSocketHandshake::connect($dockerHost, $path, $query);
+    }
+
     public static function create(array $config = []): ClientInterface
     {
         if (! \array_key_exists('remote_socket', $config)) {
