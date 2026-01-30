@@ -74,6 +74,9 @@ final class ContainerResourceDockerTest extends DockerTestCase
 
     public function testAttachWebsocket(): void
     {
+        $hostConfig = new HostConfig();
+        $hostConfig->setAutoRemove(true);
+
         $containerConfig = new ContainersCreatePostBody();
         $containerConfig->setImage('busybox:latest');
         $containerConfig->setCmd(['sh']);
@@ -83,6 +86,7 @@ final class ContainerResourceDockerTest extends DockerTestCase
         $containerConfig->setOpenStdin(true);
         $containerConfig->setTty(true);
         $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setHostConfig($hostConfig);
 
         $containerCreateResult = $this->getManager()->containerCreate($containerConfig);
         $webSocketStream = $this->getManager()->containerAttachWebsocket($containerCreateResult->getId(), [
@@ -110,7 +114,7 @@ final class ContainerResourceDockerTest extends DockerTestCase
             $output .= $data;
         }
 
-        self::assertContains('echo', $output);
+        self::assertStringContainsString('echo', $output);
 
         // Exit the container
         $webSocketStream->write("exit\n");

@@ -63,7 +63,7 @@ final class ExecResourceDockerTest extends DockerTestCase
         });
         $stream->wait();
 
-        self::getDockerClient()->containerR($createContainerResult->getId(), [
+        self::getDockerClient()->containerStop($createContainerResult->getId(), [
             'signal' => 'SIGKILL',
         ]);
 
