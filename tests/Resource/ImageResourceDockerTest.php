@@ -24,7 +24,7 @@ use Docker\Tests\DockerTestCase;
  * @internal
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
-#[\PHPUnit\Framework\Attributes\Small]
+#[\PHPUnit\Framework\Attributes\Medium]
 final class ImageResourceDockerTest extends DockerTestCase
 {
     /**
