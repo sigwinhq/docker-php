@@ -5,13 +5,10 @@
     "type": "library",
     "require": {
         "php": "^8.3",
-        "guzzlehttp/psr7": "^2.8",
         "jane-php/open-api-runtime": "^7.10",
-        "php-http/client-common": "^2.7",
-        "php-http/message": "^1.0",
-        "php-http/socket-client": "^2.4",
         "symfony/filesystem": "^7.4 || ^8.0",
-        "symfony/process": "^7.4 || ^8.0"
+        "symfony/process": "^7.4 || ^8.0",
+        "php-http/discovery": "^1.20"
     },
     "require-dev": {
         "jane-php/open-api-2": "^7.10",
@@ -30,14 +27,14 @@
             "Docker\\Tests\\": "tests/"
         }
     },
-    "config": {
-        "allow-plugins": {
-            "php-http/discovery": true
-        }
-    },
     "extra": {
         "branch-alias": {
             "dev-master": "3.x-dev"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": false
         }
     }
 }

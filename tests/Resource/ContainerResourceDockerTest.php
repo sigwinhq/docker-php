@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Docker\Tests\Resource;
 
 use Docker\API\Model\ContainersCreatePostBody;
-use Docker\Docker;
+use Docker\DockerClient;
 use Docker\Stream\DockerRawStream;
 use Docker\Tests\DockerTestCase;
 
@@ -32,7 +32,7 @@ final class ContainerResourceDockerTest extends DockerTestCase
      */
     private function getManager()
     {
-        return self::getDocker();
+        return self::getDockerClient();
     }
 
     /**
@@ -40,7 +40,7 @@ final class ContainerResourceDockerTest extends DockerTestCase
      */
     public static function setUpBeforeClass(): void
     {
-        self::getDocker()->imageCreate('', [
+        self::getDockerClient()->imageCreate('', [
             'fromImage' => 'busybox:latest',
         ]);
     }
@@ -132,7 +132,7 @@ final class ContainerResourceDockerTest extends DockerTestCase
         $logsStream = $this->getManager()->containerLogs($containerCreateResult->getId(), [
             'stdout' => true,
             'stderr' => true,
-        ], Docker::FETCH_OBJECT);
+        ], DockerClient::FETCH_OBJECT);
 
         self::assertInstanceOf(DockerRawStream::class, $logsStream);
     }

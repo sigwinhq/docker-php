@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Docker\Tests;
 
-use Docker\Docker;
+use Docker\DockerClient;
 
 /**
  * @internal
@@ -24,14 +24,8 @@ use Docker\Docker;
 #[\PHPUnit\Framework\Attributes\Small]
 abstract class DockerTestCase extends \PHPUnit\Framework\TestCase
 {
-    private static $docker;
-
-    public static function getDocker(): Docker
+    public static function getDockerClient(): DockerClient
     {
-        if (self::$docker === null) {
-            self::$docker = Docker::create();
-        }
-
-        return self::$docker;
+        return DockerClient::create();
     }
 }

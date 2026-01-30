@@ -30,7 +30,7 @@ final class SystemResourceDockerTest extends DockerTestCase
      */
     private function getManager()
     {
-        return self::getDocker();
+        return self::getDockerClient();
     }
 
     public function testGetEvents(): void
@@ -46,7 +46,7 @@ final class SystemResourceDockerTest extends DockerTestCase
             $lastEvent = $event;
         });
 
-        self::getDocker()->imageCreate('', [
+        self::getDockerClient()->imageCreate('', [
             'fromImage' => 'busybox:latest',
         ]);
 

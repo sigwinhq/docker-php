@@ -32,7 +32,7 @@ final class ImageResourceDockerTest extends DockerTestCase
      */
     private function getManager()
     {
-        return self::getDocker();
+        return self::getDockerClient();
     }
 
     public function testBuild(): void

@@ -15,17 +15,17 @@ declare(strict_types=1);
 
 namespace Docker\Tests;
 
-use Docker\Docker;
+use Docker\DockerClient;
 
 /**
  * @internal
  */
 #[\PHPUnit\Framework\Attributes\CoversNothing]
 #[\PHPUnit\Framework\Attributes\Small]
-final class DockerDockerTest extends DockerTestCase
+final class DockerClientTest extends DockerTestCase
 {
     public function testCreate(): void
     {
-        self::assertInstanceOf(Docker::class, Docker::create());
+        self::assertInstanceOf(DockerClient::class, DockerClient::create());
     }
 }

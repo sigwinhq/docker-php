@@ -29,7 +29,7 @@ use Docker\Endpoint\SystemEvents;
 /**
  * Docker\Docker.
  */
-final class Docker extends Client
+final class DockerClient extends Client
 {
     public function containerAttach(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
     {
@@ -75,7 +75,7 @@ final class Docker extends Client
         return $this->executeEndpoint(new SystemEvents($queryParameters), $fetch);
     }
 
-    public static function create($httpClient = null, array $additionalPlugins = [], array $additionalNormalizers = [])
+    public static function create($httpClient = null, array $additionalPlugins = [], array $additionalNormalizers = []): self
     {
         if ($httpClient === null) {
             $httpClient = DockerClientFactory::createFromEnv();

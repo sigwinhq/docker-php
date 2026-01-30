@@ -34,7 +34,7 @@ final class ExecResourceDockerTest extends DockerTestCase
      */
     private function getManager()
     {
-        return self::getDocker();
+        return self::getDockerClient();
     }
 
     public function testStartStream(): void
@@ -64,7 +64,7 @@ final class ExecResourceDockerTest extends DockerTestCase
 
         self::assertSame("output\n", $stdoutFull);
 
-        self::getDocker()->containerKill($createContainerResult->getId(), [
+        self::getDockerClient()->containerKill($createContainerResult->getId(), [
             'signal' => 'SIGKILL',
         ]);
     }
@@ -87,7 +87,7 @@ final class ExecResourceDockerTest extends DockerTestCase
 
         self::assertInstanceOf(ExecIdJsonGetResponse200::class, $execFindResult);
 
-        self::getDocker()->containerKill($createContainerResult->getId(), [
+        self::getDockerClient()->containerKill($createContainerResult->getId(), [
             'signal' => 'SIGKILL',
         ]);
     }
@@ -100,8 +100,8 @@ final class ExecResourceDockerTest extends DockerTestCase
         $containerConfig->setOpenStdin(true);
         $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
 
-        $containerCreateResult = self::getDocker()->containerCreate($containerConfig);
-        self::getDocker()->containerStart($containerCreateResult->getId());
+        $containerCreateResult = self::getDockerClient()->containerCreate($containerConfig);
+        self::getDockerClient()->containerStart($containerCreateResult->getId());
 
         return $containerCreateResult;
     }
