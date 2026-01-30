@@ -47,11 +47,15 @@ final class ContainerResourceDockerTest extends DockerTestCase
 
     public function testAttach(): void
     {
+        $hostConfig = new HostConfig();
+        $hostConfig->setAutoRemove(true);
+
         $containerConfig = new ContainersCreatePostBody();
         $containerConfig->setImage('busybox:latest');
         $containerConfig->setCmd(['echo', '-n', 'output']);
         $containerConfig->setAttachStdout(true);
         $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setHostConfig($hostConfig);
 
         $containerCreateResult = $this->getManager()->containerCreate($containerConfig);
         $dockerRawStream = $this->getManager()->containerAttach($containerCreateResult->getId(), [

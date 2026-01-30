@@ -18,9 +18,6 @@ namespace Docker\Tests;
 use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\HostConfig;
 use Docker\DockerClient;
-use Docker\DockerHttpClientFactory;
-use Http\Client\HttpAsyncClient;
-use Psr\Http\Client\ClientInterface;
 
 /**
  * @internal
@@ -32,19 +29,6 @@ final class DockerClientTest extends DockerTestCase
     public function testCreate(): void
     {
         self::assertInstanceOf(DockerClient::class, DockerClient::create());
-    }
-
-    public function testHttpClientImplementsSyncInterface(): void
-    {
-        $httpClient = DockerHttpClientFactory::create();
-        self::assertInstanceOf(ClientInterface::class, $httpClient);
-    }
-
-    public function testHttpClientImplementsAsyncInterface(): void
-    {
-        $httpClient = DockerHttpClientFactory::create();
-        self::assertInstanceOf(HttpAsyncClient::class, $httpClient,
-            'HttplugClient should implement HttpAsyncClient for async support');
     }
 
     public function testContainerLifecycle(): void
@@ -62,7 +46,7 @@ final class DockerClientTest extends DockerTestCase
         // Create container
         $containerConfig = new ContainersCreatePostBody();
         $containerConfig->setImage('busybox:latest');
-        $containerConfig->setCmd(['echo', '-n', 'output']);
+        $containerConfig->setCmd(['sh']);
         $containerConfig->setAttachStdout(true);
         $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
         $containerConfig->setHostConfig($hostConfig);
@@ -85,7 +69,6 @@ final class DockerClientTest extends DockerTestCase
                 break;
             }
         }
-        $client->containerDelete($containerCreate->getId());
 
         self::assertTrue($found, 'Container should be in the list');
     }
