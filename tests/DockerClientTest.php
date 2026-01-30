@@ -60,10 +60,7 @@ final class DockerClientTest extends DockerTestCase
         // Start container
         $client->containerStart($containerCreate->getId());
 
-        // Wait for container to finish
-        $client->containerWait($containerCreate->getId());
-
-        // List containers to verify it exists
+        // List containers to verify it exists (before it auto-removes)
         $containers = $client->containerList(['all' => true]);
         $found = false;
         foreach ($containers as $container) {
@@ -72,6 +69,8 @@ final class DockerClientTest extends DockerTestCase
                 break;
             }
         }
+        // Wait for container to finish (and auto-remove)
+        $client->containerWait($containerCreate->getId());
 
         self::assertTrue($found, 'Container should be in the list');
     }

@@ -35,8 +35,8 @@ final class SystemResourceDockerTest extends DockerTestCase
     public function testGetEvents(): void
     {
         $stream = $this->getManager()->systemEvents([
-            'since' => (string) (time() - 1),
-            'until' => (string) (time() + 4),
+            'since' => (string) (time()),
+            'until' => (string) (time() + 5),
         ]);
 
         $lastEvent = null;
@@ -45,9 +45,14 @@ final class SystemResourceDockerTest extends DockerTestCase
             $lastEvent = $event;
         });
 
-        self::getDockerClient()->imageCreate('', [
-            'fromImage' => 'busybox:latest',
-        ]);
+        // Create and delete a container to ensure we get events
+        $containerConfig = new \Docker\API\Model\ContainersCreatePostBody();
+        $containerConfig->setImage('busybox:latest');
+        $containerConfig->setCmd(['echo', 'test']);
+        $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+
+        $containerCreate = self::getDockerClient()->containerCreate($containerConfig);
+        self::getDockerClient()->containerDelete($containerCreate->getId());
 
         $stream->wait();
 

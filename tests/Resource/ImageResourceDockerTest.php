@@ -39,7 +39,8 @@ final class ImageResourceDockerTest extends DockerTestCase
     public function testBuild(): void
     {
         $contextBuilder = new ContextBuilder();
-        $contextBuilder->from('ubuntu:precise');
+        $contextBuilder->setFormat(\Docker\Context\Context::FORMAT_TAR);
+        $contextBuilder->from('busybox:latest');
         $contextBuilder->add('/test', 'test file content');
 
         $context = $contextBuilder->getContext();
@@ -50,7 +51,9 @@ final class ImageResourceDockerTest extends DockerTestCase
         $lastMessage = '';
 
         $buildStream->onFrame(static function ($frame) use (&$lastMessage): void {
-            $lastMessage = $frame->getStream();
+            if ($frame->getStream() !== null && $frame->getStream() !== '') {
+                $lastMessage = $frame->getStream();
+            }
         });
         $buildStream->wait();
 
@@ -80,7 +83,8 @@ final class ImageResourceDockerTest extends DockerTestCase
     public function testPushStream(): void
     {
         $contextBuilder = new ContextBuilder();
-        $contextBuilder->from('ubuntu:precise');
+        $contextBuilder->setFormat(\Docker\Context\Context::FORMAT_TAR);
+        $contextBuilder->from('busybox:latest');
         $contextBuilder->add('/test', 'test file content');
 
         $context = $contextBuilder->getContext();

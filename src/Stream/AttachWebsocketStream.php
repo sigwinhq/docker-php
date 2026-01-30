@@ -102,15 +102,25 @@ final class AttachWebsocketStream
      */
     public function read($waitTime = 0, $waitMicroTime = 200000, $getFrame = false): bool|string|array|null
     {
-        if (! \is_resource($this->socket) || feof($this->socket)) {
+        if (! \is_resource($this->socket)) {
+            return null;
+        }
+
+        if (feof($this->socket)) {
             return null;
         }
 
         $read = [$this->socket];
-        $write = null;
-        $expect = null;
+        $write = [];
+        $expect = [];
 
-        if (0 === stream_select($read, $write, $expect, $waitTime, $waitMicroTime)) {
+        $result = @stream_select($read, $write, $expect, $waitTime, $waitMicroTime);
+
+        if ($result === false) {
+            return null;
+        }
+
+        if ($result === 0) {
             return false;
         }
 
