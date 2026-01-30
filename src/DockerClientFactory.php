@@ -17,7 +17,7 @@ namespace Docker;
 
 use Psr\Http\Client\ClientInterface;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpClient\Psr18Client;
+use Symfony\Component\HttpClient\HttplugClient;
 
 final class DockerClientFactory
 {
@@ -28,10 +28,11 @@ final class DockerClientFactory
         }
 
         $options = [];
-        
+
         // Handle Unix socket or TCP connection
         if (preg_match('#^unix://(.+)$#', $config['remote_socket'], $matches)) {
-            $options['bindto'] = $config['remote_socket'];
+            // Extract the actual file path from unix:// URL
+            $options['bindto'] = $matches[1];
             $options['base_uri'] = 'http://localhost';
         } else {
             $options['base_uri'] = $config['remote_socket'];
@@ -41,7 +42,7 @@ final class DockerClientFactory
         if (isset($config['ssl']) && $config['ssl']) {
             if (isset($config['stream_context_options']['ssl'])) {
                 $sslContext = $config['stream_context_options']['ssl'];
-                
+
                 if (isset($sslContext['cafile'])) {
                     $options['cafile'] = $sslContext['cafile'];
                 }
@@ -55,8 +56,8 @@ final class DockerClientFactory
         }
 
         $httpClient = HttpClient::create($options);
-        
-        return new Psr18Client($httpClient);
+
+        return new HttplugClient($httpClient);
     }
 
     public static function createFromEnv(): ClientInterface

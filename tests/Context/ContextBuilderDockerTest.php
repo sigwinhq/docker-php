@@ -142,7 +142,7 @@ final class ContextBuilderDockerTest extends DockerTestCase
 
         $context = $contextBuilder->getContext();
 
-        self::assertRegExp(<<<'DOCKERFILE'
+        self::assertMatchesRegularExpression(<<<'DOCKERFILE'
             #FROM base
             ADD .+? /foo#
             DOCKERFILE, $context->getDockerfileContent()
@@ -253,7 +253,7 @@ final class ContextBuilderDockerTest extends DockerTestCase
 
         $contextBuilder->command('changed');
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        self::assertNotContains('CMD test123', $content);
+        self::assertStringNotContainsString('CMD test123', $content);
         self::assertStringEndsWith("\nCMD changed", $content);
     }
 
@@ -267,7 +267,7 @@ final class ContextBuilderDockerTest extends DockerTestCase
 
         $contextBuilder->entrypoint('changed');
         $content = $contextBuilder->getContext()->getDockerfileContent();
-        self::assertNotContains('ENTRYPOINT test123', $content);
+        self::assertStringNotContainsString('ENTRYPOINT test123', $content);
         self::assertStringEndsWith("\nENTRYPOINT changed", $content);
     }
 
@@ -277,7 +277,7 @@ final class ContextBuilderDockerTest extends DockerTestCase
         $contextBuilder->setFormat(Context::FORMAT_TAR);
         $context = $contextBuilder->getContext();
         $content = $context->read();
-        self::assertInternalType('string', $content);
+        self::assertIsString($content);
         self::assertSame($context->toTar(), $content);
     }
 

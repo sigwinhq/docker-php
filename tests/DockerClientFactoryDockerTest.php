@@ -42,7 +42,7 @@ final class DockerClientFactoryDockerTest extends DockerTestCase
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Connection to docker has been set to use TLS, but no PATH is defined for certificate in DOCKER_CERT_PATH docker environment variable');
-        
+
         putenv('DOCKER_TLS_VERIFY=1');
         DockerClientFactory::createFromEnv();
     }

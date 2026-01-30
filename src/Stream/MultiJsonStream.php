@@ -23,8 +23,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 abstract class MultiJsonStream extends CallbackStream
 {
-    /** @var SerializerInterface Serializer to decode incoming json object */
-    private $serializer;
+    private SerializerInterface $serializer;
 
     public function __construct(StreamInterface $stream, SerializerInterface $serializer)
     {
@@ -33,7 +32,7 @@ abstract class MultiJsonStream extends CallbackStream
         $this->serializer = $serializer;
     }
 
-    protected function readFrame()
+    protected function readFrame(): mixed
     {
         $jsonFrameEnd = false;
         $lastJsonChar = '';
