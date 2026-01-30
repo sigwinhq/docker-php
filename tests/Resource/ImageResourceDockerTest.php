@@ -73,7 +73,7 @@ final class ImageResourceDockerTest extends DockerTestCase
         });
         $createImageStream->wait();
 
-        self::assertContains('Pulling from library/registry', $firstMessage);
+        self::assertStringContainsString('Pulling from library/registry', $firstMessage);
     }
 
     public function testPushStream(): void
@@ -102,6 +102,6 @@ final class ImageResourceDockerTest extends DockerTestCase
         });
         $pushImageStream->wait();
 
-        self::assertContains('repository [localhost:5000/test-image]', $firstMessage);
+        self::assertStringContainsString('repository [localhost:5000/test-image]', $firstMessage);
     }
 }
