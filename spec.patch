@@ -1,0 +1,26 @@
+--- a/v1.53.yaml
++++ b/v1.53.yaml
+@@ -3330,6 +3330,7 @@
+         $ref: "#/definitions/EndpointIPAMConfig"
+       Links:
+         type: "array"
++        x-nullable: true
+         items:
+           type: "string"
+         example:
+@@ -3344,6 +3345,7 @@
+           type: HardwareAddr
+       Aliases:
+         type: "array"
++        x-nullable: true
+         items:
+           type: "string"
+         example:
+@@ -3438,6 +3440,7 @@
+           `testnet`, `DNSNames` will contain `my.ctr` and the FQDN will be
+           `my.ctr.testnet`.
+         type: array
++        x-nullable: true
+         items:
+           type: string
+         example: ["foobar", "server_x", "server_y", "my.ctr"]

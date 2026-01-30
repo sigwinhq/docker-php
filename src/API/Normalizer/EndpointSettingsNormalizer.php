@@ -59,22 +59,26 @@ final class EndpointSettingsNormalizer implements DenormalizerAwareInterface, De
         } elseif (\array_key_exists('IPAMConfig', $data) && $data['IPAMConfig'] === null) {
             $object->setIPAMConfig(null);
         }
-        if (\array_key_exists('Links', $data)) {
+        if (\array_key_exists('Links', $data) && $data['Links'] !== null) {
             $values = [];
-            foreach ($data['Links'] ?? [] as $value) {
+            foreach ($data['Links'] as $value) {
                 $values[] = $value;
             }
             $object->setLinks($values);
+        } elseif (\array_key_exists('Links', $data) && $data['Links'] === null) {
+            $object->setLinks(null);
         }
         if (\array_key_exists('MacAddress', $data)) {
             $object->setMacAddress($data['MacAddress']);
         }
-        if (\array_key_exists('Aliases', $data)) {
+        if (\array_key_exists('Aliases', $data) && $data['Aliases'] !== null) {
             $values_1 = [];
-            foreach ($data['Aliases'] ?? [] as $value_1) {
+            foreach ($data['Aliases'] as $value_1) {
                 $values_1[] = $value_1;
             }
             $object->setAliases($values_1);
+        } elseif (\array_key_exists('Aliases', $data) && $data['Aliases'] === null) {
+            $object->setAliases(null);
         }
         if (\array_key_exists('DriverOpts', $data) && $data['DriverOpts'] !== null) {
             $values_2 = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
@@ -112,12 +116,14 @@ final class EndpointSettingsNormalizer implements DenormalizerAwareInterface, De
         if (\array_key_exists('GlobalIPv6PrefixLen', $data)) {
             $object->setGlobalIPv6PrefixLen($data['GlobalIPv6PrefixLen']);
         }
-        if (\array_key_exists('DNSNames', $data)) {
+        if (\array_key_exists('DNSNames', $data) && $data['DNSNames'] !== null) {
             $values_3 = [];
-            foreach ($data['DNSNames'] ?? [] as $value_3) {
+            foreach ($data['DNSNames'] as $value_3) {
                 $values_3[] = $value_3;
             }
             $object->setDNSNames($values_3);
+        } elseif (\array_key_exists('DNSNames', $data) && $data['DNSNames'] === null) {
+            $object->setDNSNames(null);
         }
 
         return $object;
@@ -129,7 +135,7 @@ final class EndpointSettingsNormalizer implements DenormalizerAwareInterface, De
         if ($data->isInitialized('iPAMConfig')) {
             $dataArray['IPAMConfig'] = $this->normalizer->normalize($data->getIPAMConfig(), 'json', $context);
         }
-        if ($data->isInitialized('links') && null !== $data->getLinks()) {
+        if ($data->isInitialized('links')) {
             $values = [];
             foreach ($data->getLinks() as $value) {
                 $values[] = $value;
@@ -139,7 +145,7 @@ final class EndpointSettingsNormalizer implements DenormalizerAwareInterface, De
         if ($data->isInitialized('macAddress') && null !== $data->getMacAddress()) {
             $dataArray['MacAddress'] = $data->getMacAddress();
         }
-        if ($data->isInitialized('aliases') && null !== $data->getAliases()) {
+        if ($data->isInitialized('aliases')) {
             $values_1 = [];
             foreach ($data->getAliases() as $value_1) {
                 $values_1[] = $value_1;
@@ -180,7 +186,7 @@ final class EndpointSettingsNormalizer implements DenormalizerAwareInterface, De
         if ($data->isInitialized('globalIPv6PrefixLen') && null !== $data->getGlobalIPv6PrefixLen()) {
             $dataArray['GlobalIPv6PrefixLen'] = $data->getGlobalIPv6PrefixLen();
         }
-        if ($data->isInitialized('dNSNames') && null !== $data->getDNSNames()) {
+        if ($data->isInitialized('dNSNames')) {
             $values_3 = [];
             foreach ($data->getDNSNames() as $value_3) {
                 $values_3[] = $value_3;
