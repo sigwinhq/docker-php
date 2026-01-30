@@ -68,7 +68,7 @@ final class BuildInfo
 
     public function getStream(): string
     {
-        return $this->stream;
+        return $this->stream ?? '';
     }
 
     public function setStream(string $stream): self

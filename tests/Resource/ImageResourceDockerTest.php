@@ -18,6 +18,7 @@ namespace Docker\Tests\Resource;
 use Docker\API\Client;
 use Docker\API\Model\AuthConfig;
 use Docker\Context\ContextBuilder;
+use Docker\Stream\BuildStream;
 use Docker\Tests\DockerTestCase;
 
 /**
@@ -44,7 +45,7 @@ final class ImageResourceDockerTest extends DockerTestCase
         $context = $contextBuilder->getContext();
         $buildStream = $this->getManager()->imageBuild($context->read(), ['t' => 'test-image']);
 
-        self::assertInstanceOf('Docker\Stream\BuildStream', $buildStream);
+        self::assertInstanceOf(BuildStream::class, $buildStream);
 
         $lastMessage = '';
 
@@ -53,7 +54,7 @@ final class ImageResourceDockerTest extends DockerTestCase
         });
         $buildStream->wait();
 
-        self::assertContains('Successfully', $lastMessage);
+        self::assertStringContainsString('Successfully', $lastMessage);
     }
 
     public function testCreate(): void

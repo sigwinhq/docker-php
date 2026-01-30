@@ -82,7 +82,7 @@ final class ExecIdJsonGetResponse200Normalizer implements DenormalizerAwareInter
             $object->setRunning($data['Running']);
         }
         if (\array_key_exists('ExitCode', $data)) {
-            $object->setExitCode($data['ExitCode']);
+            $object->setExitCode($data['ExitCode'] ?? 0);
         }
         if (\array_key_exists('ProcessConfig', $data)) {
             $object->setProcessConfig($this->denormalizer->denormalize($data['ProcessConfig'], \Docker\API\Model\ProcessConfig::class, 'json', $context));
