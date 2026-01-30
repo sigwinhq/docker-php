@@ -61,7 +61,7 @@ final class EndpointSettingsNormalizer implements DenormalizerAwareInterface, De
         }
         if (\array_key_exists('Links', $data)) {
             $values = [];
-            foreach ($data['Links'] as $value) {
+            foreach ($data['Links'] ?? [] as $value) {
                 $values[] = $value;
             }
             $object->setLinks($values);
@@ -71,7 +71,7 @@ final class EndpointSettingsNormalizer implements DenormalizerAwareInterface, De
         }
         if (\array_key_exists('Aliases', $data)) {
             $values_1 = [];
-            foreach ($data['Aliases'] as $value_1) {
+            foreach ($data['Aliases'] ?? [] as $value_1) {
                 $values_1[] = $value_1;
             }
             $object->setAliases($values_1);
@@ -114,7 +114,7 @@ final class EndpointSettingsNormalizer implements DenormalizerAwareInterface, De
         }
         if (\array_key_exists('DNSNames', $data)) {
             $values_3 = [];
-            foreach ($data['DNSNames'] as $value_3) {
+            foreach ($data['DNSNames'] ?? [] as $value_3) {
                 $values_3[] = $value_3;
             }
             $object->setDNSNames($values_3);
