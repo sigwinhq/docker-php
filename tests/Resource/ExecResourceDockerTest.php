@@ -19,6 +19,7 @@ use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\ContainersIdExecPostBody;
 use Docker\API\Model\ExecIdJsonGetResponse200;
 use Docker\API\Model\ExecIdStartPostBody;
+use Docker\API\Model\HostConfig;
 use Docker\Stream\DockerRawStream;
 use Docker\Tests\DockerTestCase;
 
@@ -62,11 +63,11 @@ final class ExecResourceDockerTest extends DockerTestCase
         });
         $stream->wait();
 
-        self::assertSame("output\n", $stdoutFull);
-
-        self::getDockerClient()->containerKill($createContainerResult->getId(), [
+        self::getDockerClient()->containerR($createContainerResult->getId(), [
             'signal' => 'SIGKILL',
         ]);
+
+        self::assertSame("output\n", $stdoutFull);
     }
 
     public function testExecFind(): void
@@ -85,20 +86,24 @@ final class ExecResourceDockerTest extends DockerTestCase
 
         $execFindResult = $this->getManager()->execInspect($execCreateResult->getId());
 
-        self::assertInstanceOf(ExecIdJsonGetResponse200::class, $execFindResult);
-
-        self::getDockerClient()->containerKill($createContainerResult->getId(), [
+        self::getDockerClient()->containerStop($createContainerResult->getId(), [
             'signal' => 'SIGKILL',
         ]);
+
+        self::assertInstanceOf(ExecIdJsonGetResponse200::class, $execFindResult);
     }
 
     private function createContainer()
     {
+        $hostConfig = new HostConfig();
+        $hostConfig->setAutoRemove(true);
+
         $containerConfig = new ContainersCreatePostBody();
         $containerConfig->setImage('busybox:latest');
         $containerConfig->setCmd(['sh']);
         $containerConfig->setOpenStdin(true);
         $containerConfig->setLabels(new \ArrayObject(['docker-php-test' => 'true']));
+        $containerConfig->setHostConfig($hostConfig);
 
         $containerCreateResult = self::getDockerClient()->containerCreate($containerConfig);
         self::getDockerClient()->containerStart($containerCreateResult->getId());
