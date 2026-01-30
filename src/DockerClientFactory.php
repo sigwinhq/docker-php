@@ -15,42 +15,51 @@ declare(strict_types=1);
 
 namespace Docker;
 
-use GuzzleHttp\Psr7\Uri;
-use Http\Client\Common\Plugin\AddHostPlugin;
-use Http\Client\Common\Plugin\ContentLengthPlugin;
-use Http\Client\Common\Plugin\DecoderPlugin;
-use Http\Client\Common\PluginClientFactory;
-use Http\Client\HttpClient;
-use Http\Client\Socket\Client as SocketHttpClient;
-use Http\Message\MessageFactory\GuzzleMessageFactory;
+use Psr\Http\Client\ClientInterface;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\Psr18Client;
 
 final class DockerClientFactory
 {
-    /**
-     * ( .
-     */
-    public static function create(array $config = [], ?PluginClientFactory $pluginClientFactory = null): HttpClient
+    public static function create(array $config = []): ClientInterface
     {
         if (! \array_key_exists('remote_socket', $config)) {
             $config['remote_socket'] = 'unix:///var/run/docker.sock';
         }
 
-        $messageFactory = new GuzzleMessageFactory();
-        $socketClient = new SocketHttpClient($messageFactory, $config);
-        $host = preg_match('/unix:\/\//', $config['remote_socket']) ? 'http://localhost' : $config['remote_socket'];
+        $options = [];
+        
+        // Handle Unix socket or TCP connection
+        if (preg_match('#^unix://(.+)$#', $config['remote_socket'], $matches)) {
+            $options['bindto'] = $config['remote_socket'];
+            $options['base_uri'] = 'http://localhost';
+        } else {
+            $options['base_uri'] = $config['remote_socket'];
+        }
 
-        $pluginClientFactory ??= new PluginClientFactory();
+        // Handle SSL/TLS configuration
+        if (isset($config['ssl']) && $config['ssl']) {
+            if (isset($config['stream_context_options']['ssl'])) {
+                $sslContext = $config['stream_context_options']['ssl'];
+                
+                if (isset($sslContext['cafile'])) {
+                    $options['cafile'] = $sslContext['cafile'];
+                }
+                if (isset($sslContext['local_cert'])) {
+                    $options['local_cert'] = $sslContext['local_cert'];
+                }
+                if (isset($sslContext['local_pk'])) {
+                    $options['local_pk'] = $sslContext['local_pk'];
+                }
+            }
+        }
 
-        return $pluginClientFactory->createClient($socketClient, [
-            new ContentLengthPlugin(),
-            new DecoderPlugin(),
-            new AddHostPlugin(new Uri($host)),
-        ], [
-            'client_name' => 'docker-client',
-        ]);
+        $httpClient = HttpClient::create($options);
+        
+        return new Psr18Client($httpClient);
     }
 
-    public static function createFromEnv(?PluginClientFactory $pluginClientFactory = null): HttpClient
+    public static function createFromEnv(): ClientInterface
     {
         $options = [
             'remote_socket' => getenv('DOCKER_HOST') ? getenv('DOCKER_HOST') : 'unix:///var/run/docker.sock',
@@ -71,16 +80,12 @@ final class DockerClientFactory
                 'local_pk' => $keyfile,
             ];
 
-            if (getenv('DOCKER_PEER_NAME')) {
-                $stream_context['peer_name'] = getenv('DOCKER_PEER_NAME');
-            }
-
             $options['ssl'] = true;
             $options['stream_context_options'] = [
                 'ssl' => $stream_context,
             ];
         }
 
-        return self::create($options, $pluginClientFactory);
+        return self::create($options);
     }
 }

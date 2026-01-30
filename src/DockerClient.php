@@ -81,6 +81,18 @@ final class DockerClient extends Client
             $httpClient = DockerClientFactory::createFromEnv();
         }
 
-        return parent::create($httpClient, $additionalPlugins, $additionalNormalizers);
+        if (\count($additionalPlugins) > 0) {
+            $httpClient = new \Http\Client\Common\PluginClient($httpClient, $additionalPlugins);
+        }
+        
+        $requestFactory = \Http\Discovery\Psr17FactoryDiscovery::findRequestFactory();
+        $streamFactory = \Http\Discovery\Psr17FactoryDiscovery::findStreamFactory();
+        $normalizers = [new \Symfony\Component\Serializer\Normalizer\ArrayDenormalizer(), new API\Normalizer\JaneObjectNormalizer()];
+        if (\count($additionalNormalizers) > 0) {
+            $normalizers = array_merge($normalizers, $additionalNormalizers);
+        }
+        $serializer = new \Symfony\Component\Serializer\Serializer($normalizers, [new \Symfony\Component\Serializer\Encoder\JsonEncoder(new \Symfony\Component\Serializer\Encoder\JsonEncode(), new \Symfony\Component\Serializer\Encoder\JsonDecode(['json_decode_associative' => true]))]);
+
+        return new self($httpClient, $requestFactory, $serializer, $streamFactory);
     }
 }
