@@ -23,102 +23,109 @@ use Docker\Stream\CreateImageStream;
 use Docker\Stream\DockerRawStream;
 use Docker\Stream\EventStream;
 use Docker\Stream\PushStream;
+use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * Docker\Docker.
- */
-final class DockerClient extends Client
+final readonly class DockerClient
 {
-    public function containerAttach(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
+    private function __construct(private Client $client, private SerializerInterface $serializer)
     {
-        if ($fetch === self::FETCH_OBJECT) {
-            $response = $this->executeRawEndpoint(new API\Endpoint\ContainerAttach($id, $queryParameters));
-
-            return new DockerRawStream($response->getBody(), $this->serializer);
-        }
-
-        return $this->executeEndpoint(new API\Endpoint\ContainerAttach($id, $queryParameters), $fetch);
     }
 
-    public function containerAttachWebsocket(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
+    public function __call(string $name, array $arguments)
     {
-        if ($fetch === self::FETCH_OBJECT) {
-            $response = $this->executeRawEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters));
+        return $this->client->$name(...$arguments);
+    }
+
+    public function containerAttach(string $id, array $queryParameters = [], string $fetch = Client::FETCH_OBJECT)
+    {
+        if ($fetch === Client::FETCH_OBJECT) {
+            $response = $this->client->executeRawEndpoint(new API\Endpoint\ContainerAttach($id, $queryParameters));
+
+            return new DockerRawStream($response->getBody());
+        }
+
+        return $this->client->executeEndpoint(new API\Endpoint\ContainerAttach($id, $queryParameters), $fetch);
+    }
+
+    public function containerAttachWebsocket(string $id, array $queryParameters = [], string $fetch = Client::FETCH_OBJECT)
+    {
+        if ($fetch === Client::FETCH_OBJECT) {
+            $response = $this->client->executeRawEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters));
 
             return new AttachWebsocketStream($response->getBody());
         }
 
-        return $this->executeEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters), $fetch);
+        return $this->client->executeEndpoint(new API\Endpoint\ContainerAttachWebsocket($id, $queryParameters), $fetch);
     }
 
-    public function containerLogs(string $id, array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
+    public function containerLogs(string $id, array $queryParameters = [], string $fetch = Client::FETCH_OBJECT)
     {
-        if ($fetch === self::FETCH_OBJECT) {
-            $response = $this->executeRawEndpoint(new API\Endpoint\ContainerLogs($id, $queryParameters));
+        if ($fetch === Client::FETCH_OBJECT) {
+            $response = $this->client->executeRawEndpoint(new API\Endpoint\ContainerLogs($id, $queryParameters));
 
-            return new DockerRawStream($response->getBody(), $this->serializer);
+            return new DockerRawStream($response->getBody());
         }
 
-        return $this->executeEndpoint(new API\Endpoint\ContainerLogs($id, $queryParameters), $fetch);
+        return $this->client->executeEndpoint(new API\Endpoint\ContainerLogs($id, $queryParameters), $fetch);
     }
 
-    public function execStart(string $id, API\Model\ExecIdStartPostBody $execStartConfig, string $fetch = self::FETCH_OBJECT)
+    public function execStart(string $id, API\Model\ExecIdStartPostBody $execStartConfig, string $fetch = Client::FETCH_OBJECT)
     {
-        if ($fetch === self::FETCH_OBJECT) {
-            $response = $this->executeRawEndpoint(new API\Endpoint\ExecStart($id, $execStartConfig));
+        if ($fetch === Client::FETCH_OBJECT) {
+            $response = $this->client->executeRawEndpoint(new API\Endpoint\ExecStart($id, $execStartConfig));
 
-            return new DockerRawStream($response->getBody(), $this->serializer);
+            return new DockerRawStream($response->getBody());
         }
 
-        return $this->executeEndpoint(new API\Endpoint\ExecStart($id, $execStartConfig), $fetch);
+        return $this->client->executeEndpoint(new API\Endpoint\ExecStart($id, $execStartConfig), $fetch);
     }
 
-    public function imageBuild($inputStream, array $queryParameters = [], array $headerParameters = [], string $fetch = self::FETCH_OBJECT)
+    public function imageBuild($inputStream, array $queryParameters = [], array $headerParameters = [], string $fetch = Client::FETCH_OBJECT)
     {
-        if ($fetch === self::FETCH_OBJECT) {
-            $response = $this->executeRawEndpoint(new API\Endpoint\ImageBuild($inputStream, $queryParameters, $headerParameters));
+        if ($fetch === Client::FETCH_OBJECT) {
+            $response = $this->client->executeRawEndpoint(new API\Endpoint\ImageBuild($inputStream, $queryParameters, $headerParameters));
 
             return new BuildStream($response->getBody(), $this->serializer);
         }
 
-        return $this->executeEndpoint(new API\Endpoint\ImageBuild($inputStream, $queryParameters, $headerParameters), $fetch);
+        return $this->client->executeEndpoint(new API\Endpoint\ImageBuild($inputStream, $queryParameters, $headerParameters), $fetch);
     }
 
-    public function imageCreate(string $inputImage, array $queryParameters = [], array $headerParameters = [], string $fetch = self::FETCH_OBJECT)
+    public function imageCreate(string $inputImage, array $queryParameters = [], array $headerParameters = [], string $fetch = Client::FETCH_OBJECT)
     {
-        if ($fetch === self::FETCH_OBJECT) {
-            $response = $this->executeRawEndpoint(new API\Endpoint\ImageCreate($inputImage, $queryParameters, $headerParameters));
+        if ($fetch === Client::FETCH_OBJECT) {
+            $response = $this->client->executeRawEndpoint(new API\Endpoint\ImageCreate($inputImage, $queryParameters, $headerParameters));
 
             return new CreateImageStream($response->getBody(), $this->serializer);
         }
 
-        return $this->executeEndpoint(new API\Endpoint\ImageCreate($inputImage, $queryParameters, $headerParameters), $fetch);
+        return $this->client->executeEndpoint(new API\Endpoint\ImageCreate($inputImage, $queryParameters, $headerParameters), $fetch);
     }
 
-    public function imagePush(string $name, array $queryParameters = [], array $headerParameters = [], string $fetch = self::FETCH_OBJECT)
+    public function imagePush(string $name, array $queryParameters = [], array $headerParameters = [], string $fetch = Client::FETCH_OBJECT)
     {
         if (isset($headerParameters['X-Registry-Auth']) && $headerParameters['X-Registry-Auth'] instanceof AuthConfig) {
             $headerParameters['X-Registry-Auth'] = base64_encode($this->serializer->serialize($headerParameters['X-Registry-Auth'], 'json'));
         }
 
-        if ($fetch === self::FETCH_OBJECT) {
-            $response = $this->executeRawEndpoint(new API\Endpoint\ImagePush($name, $queryParameters, $headerParameters));
+        if ($fetch === Client::FETCH_OBJECT) {
+            $response = $this->client->executeRawEndpoint(new API\Endpoint\ImagePush($name, $queryParameters, $headerParameters));
 
             return new PushStream($response->getBody(), $this->serializer);
         }
 
-        return $this->executeEndpoint(new API\Endpoint\ImagePush($name, $queryParameters, $headerParameters), $fetch);
+        return $this->client->executeEndpoint(new API\Endpoint\ImagePush($name, $queryParameters, $headerParameters), $fetch);
     }
 
-    public function systemEvents(array $queryParameters = [], string $fetch = self::FETCH_OBJECT)
+    public function systemEvents(array $queryParameters = [], string $fetch = Client::FETCH_OBJECT)
     {
-        if ($fetch === self::FETCH_OBJECT) {
-            $response = $this->executeRawEndpoint(new API\Endpoint\SystemEvents($queryParameters));
+        if ($fetch === Client::FETCH_OBJECT) {
+            $response = $this->client->executeRawEndpoint(new API\Endpoint\SystemEvents($queryParameters));
 
             return new EventStream($response->getBody(), $this->serializer);
         }
 
-        return $this->executeEndpoint(new API\Endpoint\SystemEvents($queryParameters), $fetch);
+        return $this->client->executeEndpoint(new API\Endpoint\SystemEvents($queryParameters), $fetch);
     }
 
     public static function create($httpClient = null, array $additionalPlugins = [], array $additionalNormalizers = []): self
@@ -139,6 +146,6 @@ final class DockerClient extends Client
         }
         $serializer = new \Symfony\Component\Serializer\Serializer($normalizers, [new \Symfony\Component\Serializer\Encoder\JsonEncoder(new \Symfony\Component\Serializer\Encoder\JsonEncode(), new \Symfony\Component\Serializer\Encoder\JsonDecode(['json_decode_associative' => true]))]);
 
-        return new self($httpClient, $requestFactory, $serializer, $streamFactory);
+        return new self(new Client($httpClient, $requestFactory, $serializer, $streamFactory), $serializer);
     }
 }
